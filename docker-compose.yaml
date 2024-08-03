@@ -1,0 +1,12 @@
+services:
+  gophermart-app:
+    container_name: gophermart-app
+    image: rusinov/gophermart-app
+    working_dir: /app
+    volumes:
+      - "./:/app"
+    env_file:
+      - .env
+    build:
+      dockerfile: Dockerfile
+
