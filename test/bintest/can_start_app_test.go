@@ -15,7 +15,7 @@ type ServerTestsuite struct {
 }
 
 func Test_Server(t *testing.T) {
-	suite.Run(t, &ServerTestsuite{})
+	Run(t, &ServerTestsuite{})
 }
 
 func (s *ServerTestsuite) Test_CanStartServer() {
