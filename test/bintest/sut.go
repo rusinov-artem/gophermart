@@ -26,8 +26,8 @@ func NewServerUnderTest(name string, args ...string) *ServerUnderTest {
 	return server
 }
 
-func (s *ServerUnderTest) Start() error {
-	finder := writer.NewFinder("Hello World")
+func (s *ServerUnderTest) Start(needed string) error {
+	finder := writer.NewFinder(needed)
 	s.proxy.SetWriter(finder)
 
 	err := s.cmd.Start()
