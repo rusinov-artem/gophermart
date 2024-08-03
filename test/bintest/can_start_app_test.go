@@ -35,13 +35,15 @@ func (s *ServerTestsuite) Test_CanStartServer() {
 	err = finder.Wait(time.Second)
 	s.Require().NoError(err)
 
-	finder = writer.NewFinder("Got signal: interrupt")
-	p.SetWriter(finder)
+	finder2 := writer.NewFinder("Got signal: interrupt")
+	p.SetWriter(finder2)
+
 	err = s.cmd.Process.Signal(syscall.SIGINT)
-	s.Require().NoError(err)
-	err = finder.Wait(time.Second)
 	s.Require().NoError(err)
 
 	err = s.cmd.Wait()
+	s.Require().ErrorContains(err, "signal: interrupt")
+
+	err = finder.Wait(time.Second)
 	s.Require().NoError(err)
 }
