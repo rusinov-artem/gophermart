@@ -1,7 +1,11 @@
-#!/bin/bash
+#!/bin/bash# needed to run tests with -race flag
+
+export CGO_ENABLED=1
+export GOCOVERDIR=/app/test/bintest/coverdir
+rm ${GOCOVERDIR:?}/* -r
 
 echo "Compaling ..."
-go build -o ./test/bintest/app ./cmd/gophermart/main.go
+go build -cover -o ./test/bintest/app ./cmd/gophermart
 R_VAL=$?
 
 if [[ R_VAL -ne "0" ]] ; then
@@ -13,7 +17,7 @@ echo "OK! Compilation succeeded"
 
 echo "Runing tests..."
 
-TEST_CMD="go test -v -count=1 -json -coverpkg=./... -coverprofile=coverage.out ./..."
+TEST_CMD="go test -v -count=1 -json -coverpkg=./... -covermode=set -coverprofile=coverage.out ./..."
 
 TEST_OUT=$(${TEST_CMD})
 
@@ -38,3 +42,12 @@ else
    echo "!!! TESTS PASSED !!!"
 fi
 
+
+COVERAGE_DIR_LIST=$(find /app/test/bintest/coverdir/ -maxdepth 1 -type d | sort | tail -n +2 | tr "\n" "," | sed 's/,$/\n/')
+go tool covdata textfmt -i="${COVERAGE_DIR_LIST}"  -o bincoverage.out
+gocov-merger coverage.out bincoverage.out > merge.out
+sed -i '/\/gophermart\/test/d' merge.out
+go tool cover -html=merge.out -o coverage.html
+go-cover-treemap -coverprofile merge.out > coverage.svg
+echo -n "coverage "
+go tool cover -func ./merge.out | tail -1 2>&1 | tr -s '\t' | tr -s ' '

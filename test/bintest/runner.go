@@ -12,5 +12,9 @@ func Run(t *testing.T, s suite.TestingSuite) {
 		t.Skip("no file to test")
 	}
 	suite.Run(t, s)
+}
 
+func SetupCoverDir(dir string) {
+	_ = os.MkdirAll(dir, os.ModePerm)
+	_ = os.Setenv("GOCOVERDIR", dir)
 }
