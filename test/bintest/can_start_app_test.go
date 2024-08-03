@@ -1,11 +1,11 @@
 package bintest
 
 import (
-	"bytes"
-	"fmt"
 	"os/exec"
 	"testing"
+	"time"
 
+	"github.com/rusinov-artem/gophermart/test/utils/writer"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,10 +21,12 @@ func Test_Server(t *testing.T) {
 func (s *ServerTestsuite) Test_CanStartServer() {
 	s.cmd = exec.Command("./app")
 
-	w := &Writer{bytes.NewBuffer([]byte{})}
+	p := writer.NewProxy()
+	finder := writer.NewFinder("Hello World")
+	p.SetWriter(finder)
 
-	s.cmd.Stdout = w
-	s.cmd.Stderr = w
+	s.cmd.Stdout = p
+	s.cmd.Stderr = p
 
 	err := s.cmd.Start()
 	s.Require().NoError(err)
@@ -32,14 +34,6 @@ func (s *ServerTestsuite) Test_CanStartServer() {
 	err = s.cmd.Wait()
 	s.Require().NoError(err)
 
-	s.Contains(w.Logs.String(), "Hello World")
-}
-
-type Writer struct {
-	Logs *bytes.Buffer
-}
-
-func (w *Writer) Write(p []byte) (n int, err error) {
-	fmt.Println("App:", string(p))
-	return w.Logs.Write(p)
+	err = finder.Wait(time.Second)
+	s.Require().NoError(err)
 }
