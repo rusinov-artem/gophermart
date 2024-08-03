@@ -2,6 +2,7 @@ package bintest
 
 import (
 	"os/exec"
+	"syscall"
 	"testing"
 	"time"
 
@@ -31,9 +32,16 @@ func (s *ServerTestsuite) Test_CanStartServer() {
 	err := s.cmd.Start()
 	s.Require().NoError(err)
 
-	err = s.cmd.Wait()
+	err = finder.Wait(time.Second)
 	s.Require().NoError(err)
 
+	finder = writer.NewFinder("Got signal: interrupt")
+	p.SetWriter(finder)
+	err = s.cmd.Process.Signal(syscall.SIGINT)
+	s.Require().NoError(err)
 	err = finder.Wait(time.Second)
+	s.Require().NoError(err)
+
+	err = s.cmd.Wait()
 	s.Require().NoError(err)
 }
