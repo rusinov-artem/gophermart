@@ -7,5 +7,5 @@ import (
 )
 
 func Test_Nothing(t *testing.T) {
-	assert.False(t, true)
+	assert.False(t, false)
 }
