@@ -15,7 +15,12 @@ import (
 func main() {
 	fmt.Println("Hello World")
 
-	srv := http.Server{}
+	srv := http.Server{
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}),
+	}
+
 	addr := ":7777"
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
