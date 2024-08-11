@@ -9,6 +9,7 @@ import (
 
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
 	appHandler "github.com/rusinov-artem/gophermart/app/http/handler"
+	"github.com/rusinov-artem/gophermart/app/http/middleware"
 	appRouter "github.com/rusinov-artem/gophermart/app/http/router"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
@@ -55,6 +56,8 @@ var BuildServer = func(cfg *config.Config) Server {
 	logger = logger.With(zap.Any("config", cfg))
 
 	c := chi.NewRouter()
+	c.Use(middleware.Logger(logger))
+
 	handler := appHandler.New()
 	router := appRouter.New(c).SetHandler(handler)
 

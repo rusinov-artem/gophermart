@@ -63,6 +63,10 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	address := "127.0.0.1:8080"
 	s.startServer(address)
 	defer s.stopServer()
+
+	finder := writer.NewFinder("/api/user/register")
+	s.server.proxy.SetWriter(finder)
+
 	url := fmt.Sprintf("http://%s/api/user/register", address)
 	req, err := http.NewRequest(
 		http.MethodPost,
@@ -78,6 +82,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	defer func() { _ = resp.Body.Close() }()
 
 	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	s.NoError(finder.Wait(time.Second))
 }
 
 func (s *ServerTestsuite) Test_LogErrorIfUnableToBind() {
