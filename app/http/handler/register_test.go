@@ -94,9 +94,8 @@ func (s *RegisterTestSuite) Test_LoginAlreadyInUse() {
 	}`))
 
 	s.action.registrationError = &appError.InternalError{
-		InnerError: fmt.Errorf("database error"),
-		Msg:        "temporary unable to register user",
-		Code:       appError.LoginAlreadyInUse,
+		Msg:  "login already in use",
+		Code: appError.LoginAlreadyInUse,
 	}
 
 	resp := s.handle(req)
@@ -104,7 +103,7 @@ func (s *RegisterTestSuite) Test_LoginAlreadyInUse() {
 	s.Equal("application/json", resp.Header().Get("Content-Type"))
 
 	s.JSONEq(
-		`{"error":"internal","msg":"temporary unable to register user"}`,
+		`{"error":"internal","msg":"login already in use"}`,
 		resp.Body.String(),
 	)
 }

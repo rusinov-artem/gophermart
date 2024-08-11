@@ -2,4 +2,9 @@ package error
 
 type Code int
 
-var LoginAlreadyInUse Code = 1
+var (
+	LoginAlreadyInUse        Code = 1
+	UnableToCheckLoginExists Code = 2
+	UnableToSaveUser         Code = 3
+	UnableToSaveToken        Code = 4
+)

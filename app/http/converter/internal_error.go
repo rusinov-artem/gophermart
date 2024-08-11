@@ -22,7 +22,7 @@ func NewInternalErrorConverter(err *appError.InternalError) *InternalErrorConver
 func (t *InternalErrorConverter) Byte() []byte {
 	e := jsonInternalError{
 		Error: "internal",
-		Msg:   t.err.Msg,
+		Msg:   t.err.Error(),
 	}
 
 	b, _ := json.Marshal(e)

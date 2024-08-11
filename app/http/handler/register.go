@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/rusinov-artem/gophermart/app/dto"
-	appError "github.com/rusinov-artem/gophermart/app/error"
 	"github.com/rusinov-artem/gophermart/app/http/converter"
 )
 
@@ -40,21 +39,13 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	action := h.RegisterAction(ctx)
 	validationErr := action.Validate(envelop.Params())
 	if validationErr != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write(converter.NewValidationErrorConverter(validationErr).Byte())
+		converter.ConvertError(w, validationErr)
 		return
 	}
 
 	token, registrationErr := action.Register(envelop.Params())
 	if registrationErr != nil {
-		if registrationErr.Code == appError.LoginAlreadyInUse {
-			w.WriteHeader(http.StatusConflict)
-			_, _ = w.Write(converter.NewInternalErrorConverter(registrationErr).Byte())
-			return
-		}
-
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write(converter.NewInternalErrorConverter(registrationErr).Byte())
+		converter.ConvertError(w, registrationErr)
 		return
 	}
 
