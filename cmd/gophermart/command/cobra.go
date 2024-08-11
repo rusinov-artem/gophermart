@@ -1,9 +1,11 @@
 package command
 
 import (
+	"context"
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
@@ -11,6 +13,7 @@ import (
 	appHandler "github.com/rusinov-artem/gophermart/app/http/handler"
 	"github.com/rusinov-artem/gophermart/app/http/middleware"
 	appRouter "github.com/rusinov-artem/gophermart/app/http/router"
+	"github.com/rusinov-artem/gophermart/app/migration"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
 
@@ -54,6 +57,13 @@ func RootCmd() *cobra.Command {
 var BuildServer = func(cfg *config.Config) Server {
 	logger, _ := zap.NewProduction()
 	logger = logger.With(zap.Any("config", cfg))
+
+	dbpool, err := pgxpool.New(context.Background(), cfg.DatabaseDSN)
+	if err != nil {
+		panic(err)
+	}
+
+	migration.Migrate(logger, dbpool)
 
 	c := chi.NewRouter()
 	c.Use(middleware.Logger(logger))
