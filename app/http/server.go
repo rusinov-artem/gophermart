@@ -37,7 +37,7 @@ func (s *Server) Run() {
 		s.logger.Error(err.Error(), zap.Error(err))
 		os.Exit(2)
 	}
-	s.logger.Info(fmt.Sprintf("Listening %s\n", s.s.Addr))
+	s.logger.Info(fmt.Sprintf("Listening %s", s.s.Addr))
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)

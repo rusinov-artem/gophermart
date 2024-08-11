@@ -4,11 +4,16 @@ import (
 	"net/http"
 	"os"
 
-	appHttp "github.com/rusinov-artem/gophermart/app/http"
-	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+
+	appHttp "github.com/rusinov-artem/gophermart/app/http"
+	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
+
+type Server interface {
+	Run()
+}
 
 func RootCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -19,18 +24,31 @@ func RootCmd() *cobra.Command {
 	if v, ok := os.LookupEnv("RUN_ADDRESS"); ok {
 		defaultAddress = v
 	}
+
+	defaultDSN := ""
+	if v, ok := os.LookupEnv("DATABASE_URI"); ok {
+		defaultDSN = v
+	}
+
+	accrualAddress := ""
+	if v, ok := os.LookupEnv("ACCRUAL_SYSTEM_ADDRESS"); ok {
+		accrualAddress = v
+	}
+
 	cmd.PersistentFlags().StringP("address", "a", defaultAddress, "address to listen to")
+	cmd.PersistentFlags().StringP("database", "d", defaultDSN, "address to listen to")
+	cmd.PersistentFlags().StringP("accrual", "r", accrualAddress, "address to listen to")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		cfg := config.New().Load(cmd)
-		srv := buildServer(cfg)
+		srv := BuildServer(cfg)
 		srv.Run()
 	}
 
 	return cmd
 }
 
-var buildServer = func(cfg *config.Config) *appHttp.Server {
+var BuildServer = func(cfg *config.Config) Server {
 	logger, _ := zap.NewProduction()
 	logger = logger.With(zap.Any("config", cfg))
 

@@ -10,8 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rusinov-artem/gophermart/test/utils/writer"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/rusinov-artem/gophermart/test/utils/writer"
 )
 
 type ServerTestsuite struct {
@@ -52,7 +53,7 @@ func (s *ServerTestsuite) Test_CanStartServer() {
 
 	resp, err := client.Do(req)
 	s.Require().NoError(err)
-	defer func() { resp.Body.Close() }()
+	defer func() { _ = resp.Body.Close() }()
 
 	s.Require().Equal(http.StatusOK, resp.StatusCode)
 }
