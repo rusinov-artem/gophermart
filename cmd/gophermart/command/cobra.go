@@ -1,13 +1,15 @@
 package command
 
 import (
-	"net/http"
 	"os"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
+	appHandler "github.com/rusinov-artem/gophermart/app/http/handler"
+	appRouter "github.com/rusinov-artem/gophermart/app/http/router"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
 
@@ -52,11 +54,11 @@ var BuildServer = func(cfg *config.Config) Server {
 	logger, _ := zap.NewProduction()
 	logger = logger.With(zap.Any("config", cfg))
 
-	mux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
+	c := chi.NewRouter()
+	handler := appHandler.New()
+	router := appRouter.New(c).SetHandler(handler)
 
-	s := appHttp.NewServer(cfg.Address, mux, logger)
+	s := appHttp.NewServer(cfg.Address, router.Mux(), logger)
 
 	return s
 }

@@ -1,6 +1,7 @@
 package bintest
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"net/http"
@@ -48,6 +49,27 @@ func (s *ServerTestsuite) Test_CanStartServer() {
 	url := fmt.Sprintf("http://%s/liveness", address)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	s.Require().NoError(err)
+
+	client := http.DefaultClient
+
+	resp, err := client.Do(req)
+	s.Require().NoError(err)
+	defer func() { _ = resp.Body.Close() }()
+
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+}
+
+func (s *ServerTestsuite) Test_CanRegister() {
+	address := "127.0.0.1:8080"
+	s.startServer(address)
+	defer s.stopServer()
+	url := fmt.Sprintf("http://%s/api/user/register", address)
+	req, err := http.NewRequest(
+		http.MethodPost,
+		url,
+		bytes.NewBufferString(`{"login": "user1", "password": "password1"}`))
+	s.Require().NoError(err)
+	req.Header.Set("Content-Type", "application/json")
 
 	client := http.DefaultClient
 
