@@ -50,6 +50,19 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Authorization", token)
+
+	cookie := http.Cookie{
+		Name:     "Authorization",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   3600,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	http.SetCookie(w, &cookie)
+
 	w.WriteHeader(http.StatusOK)
 
 }
