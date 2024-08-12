@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/rusinov-artem/gophermart/app/action/login"
+	"github.com/rusinov-artem/gophermart/app/action/order/add"
 	"github.com/rusinov-artem/gophermart/app/action/register"
 	"github.com/rusinov-artem/gophermart/app/crypto"
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
@@ -89,6 +90,18 @@ var BuildServer = func(cfg *config.Config) Server {
 		h.CheckPasswordHash = crypto.CheckPasswordHash
 
 		return h
+	}
+
+	handler.AuthService = func(ctx context.Context) appHandler.AuthService {
+		return nil
+	}
+
+	handler.AddOrderAction = func(ctx context.Context) appHandler.AddOrderAction {
+		s := storage.NewRegistrationStorage(ctx, dbpool)
+
+		action := add.New(s, logger)
+
+		return action
 	}
 
 	router := appRouter.New(c).SetHandler(handler)
