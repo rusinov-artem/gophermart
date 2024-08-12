@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -93,11 +94,11 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		defer func() { _ = resp.Body.Close() }()
 
 		s.Require().Equal(http.StatusOK, resp.StatusCode)
+		assert.NotEmpty(t, resp.Header.Get("Authorization"))
 		s.NoError(finder.Wait(time.Second))
 	})
 
 	s.T().Run("registered user can login", func(t *testing.T) {
-		t.Skip("broken")
 		finder := writer.NewFinder("/api/user/login")
 		server.proxy.SetWriter(finder)
 
@@ -116,10 +117,10 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		defer func() { _ = resp.Body.Close() }()
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.NotEmpty(t, resp.Header.Get("Authorization"))
 		require.NoError(t, finder.Wait(time.Second))
 		fmt.Println(resp.Body)
 	})
-
 }
 
 func (s *ServerTestsuite) Test_LogErrorIfUnableToBind() {

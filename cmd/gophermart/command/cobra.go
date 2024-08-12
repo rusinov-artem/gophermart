@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
+	"github.com/rusinov-artem/gophermart/app/action/login"
 	"github.com/rusinov-artem/gophermart/app/action/register"
 	"github.com/rusinov-artem/gophermart/app/crypto"
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
@@ -74,10 +75,20 @@ var BuildServer = func(cfg *config.Config) Server {
 	c.Use(middleware.Logger(logger))
 
 	handler := appHandler.New()
+
 	handler.RegisterAction = func(ctx context.Context) appHandler.RegisterAction {
 		s := storage.NewRegistrationStorage(ctx, dbpool)
 
 		return register.New(s, logger, crypto.NewTokenGenerator())
+	}
+
+	handler.LoginAction = func(ctx context.Context) appHandler.LoginAction {
+		s := storage.NewRegistrationStorage(ctx, dbpool)
+
+		h := login.New(s, logger, crypto.NewTokenGenerator())
+		h.CheckPasswordHash = crypto.CheckPasswordHash
+
+		return h
 	}
 
 	router := appRouter.New(c).SetHandler(handler)
