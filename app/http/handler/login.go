@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -10,48 +11,51 @@ import (
 	"github.com/rusinov-artem/gophermart/app/http/converter"
 )
 
-type RegisterAction interface {
-	Validate(params dto.RegisterParams) *appError.ValidationError
-	Register(params dto.RegisterParams) (string, *appError.InternalError)
+type LoginAction interface {
+	Validate(params dto.LoginParams) *appError.ValidationError
+	Login(params dto.LoginParams) (string, *appError.InternalError)
 }
 
-type registerEnvelop struct {
+type loginEnvelop struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 
-func (e registerEnvelop) Params() dto.RegisterParams {
-	return dto.RegisterParams{
+func (e loginEnvelop) Params() dto.LoginParams {
+	return dto.LoginParams{
 		Login:    e.Login,
 		Password: e.Password,
 	}
 }
 
-func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx, cancelFN := h.Context(r.Context())
 	defer cancelFN()
 
+	fmt.Println(ctx)
+
+	body, _ := io.ReadAll(r.Body)
 	w.Header().Set("Content-Type", "application/json")
 
-	data, _ := io.ReadAll(r.Body)
-	var envelop registerEnvelop
-	err := json.Unmarshal(data, &envelop)
+	var envelop loginEnvelop
+	err := json.Unmarshal(body, &envelop)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(`{"msg":"unable to unmarshal body"}`))
+
 		return
 	}
 
-	action := h.RegisterAction(ctx)
+	action := h.LoginAction(ctx)
 	validationErr := action.Validate(envelop.Params())
 	if validationErr != nil {
 		converter.ConvertError(w, validationErr)
 		return
 	}
 
-	token, registrationErr := action.Register(envelop.Params())
-	if registrationErr != nil {
-		converter.ConvertError(w, registrationErr)
+	token, internalError := action.Login(envelop.Params())
+	if internalError != nil {
+		converter.ConvertError(w, internalError)
 		return
 	}
 
@@ -70,5 +74,4 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 
 	w.WriteHeader(http.StatusOK)
-
 }

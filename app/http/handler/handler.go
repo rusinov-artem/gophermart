@@ -3,18 +3,11 @@ package handler
 import (
 	"context"
 	"time"
-
-	"github.com/rusinov-artem/gophermart/app/dto"
-	appError "github.com/rusinov-artem/gophermart/app/error"
 )
-
-type RegisterAction interface {
-	Validate(params dto.RegisterParams) *appError.ValidationError
-	Register(params dto.RegisterParams) (string, *appError.InternalError)
-}
 
 type Handler struct {
 	RegisterAction func(ctx context.Context) RegisterAction
+	LoginAction    func(ctx context.Context) LoginAction
 }
 
 func New() *Handler {

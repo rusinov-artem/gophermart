@@ -7,4 +7,7 @@ var (
 	UnableToCheckLoginExists Code = 2
 	UnableToSaveUser         Code = 3
 	UnableToSaveToken        Code = 4
+	InvalidCredentials       Code = 5
+
+	ServiceUnavailable Code = 6
 )

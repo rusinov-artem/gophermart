@@ -16,6 +16,13 @@ func ConvertError(w http.ResponseWriter, err error) {
 			return
 		}
 
+		if e.Code == appError.InvalidCredentials {
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write(NewInternalErrorConverter(e).Byte())
+
+			return
+		}
+
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write(NewInternalErrorConverter(e).Byte())
 

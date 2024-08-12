@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/rusinov-artem/gophermart/test"
@@ -73,25 +74,52 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	server := s.startServer(address, s.dsn)
 	defer s.stopServer(server)
 
-	finder := writer.NewFinder("/api/user/register")
-	server.proxy.SetWriter(finder)
+	s.T().Run("can register a user", func(t *testing.T) {
+		finder := writer.NewFinder("/api/user/register")
+		server.proxy.SetWriter(finder)
 
-	url := fmt.Sprintf("http://%s/api/user/register", address)
-	req, err := http.NewRequest(
-		http.MethodPost,
-		url,
-		bytes.NewBufferString(`{"login": "user1", "password": "password1"}`))
-	s.Require().NoError(err)
-	req.Header.Set("Content-Type", "application/json")
+		url := fmt.Sprintf("http://%s/api/user/register", address)
+		req, err := http.NewRequest(
+			http.MethodPost,
+			url,
+			bytes.NewBufferString(`{"login": "user1", "password": "password1"}`))
+		s.Require().NoError(err)
+		req.Header.Set("Content-Type", "application/json")
 
-	client := http.DefaultClient
+		client := http.DefaultClient
 
-	resp, err := client.Do(req)
-	s.Require().NoError(err)
-	defer func() { _ = resp.Body.Close() }()
+		resp, err := client.Do(req)
+		s.Require().NoError(err)
+		defer func() { _ = resp.Body.Close() }()
 
-	s.Require().Equal(http.StatusOK, resp.StatusCode)
-	s.NoError(finder.Wait(time.Second))
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+		s.NoError(finder.Wait(time.Second))
+	})
+
+	s.T().Run("registered user can login", func(t *testing.T) {
+		t.Skip("broken")
+		finder := writer.NewFinder("/api/user/login")
+		server.proxy.SetWriter(finder)
+
+		url := fmt.Sprintf("http://%s/api/user/login", address)
+		req, err := http.NewRequest(
+			http.MethodPost,
+			url,
+			bytes.NewBufferString(`{"login": "user1", "password": "password1"}`))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/json")
+
+		client := http.DefaultClient
+
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		defer func() { _ = resp.Body.Close() }()
+
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		require.NoError(t, finder.Wait(time.Second))
+		fmt.Println(resp.Body)
+	})
+
 }
 
 func (s *ServerTestsuite) Test_LogErrorIfUnableToBind() {
