@@ -9,11 +9,14 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
+	"github.com/rusinov-artem/gophermart/app/action/register"
+	"github.com/rusinov-artem/gophermart/app/crypto"
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
 	appHandler "github.com/rusinov-artem/gophermart/app/http/handler"
 	"github.com/rusinov-artem/gophermart/app/http/middleware"
 	appRouter "github.com/rusinov-artem/gophermart/app/http/router"
 	"github.com/rusinov-artem/gophermart/app/migration"
+	"github.com/rusinov-artem/gophermart/app/storage"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
 
@@ -25,6 +28,8 @@ func RootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "gophermart",
 	}
+
+	cmd.AddCommand(migrate())
 
 	defaultAddress := ":80"
 	if v, ok := os.LookupEnv("RUN_ADDRESS"); ok {
@@ -69,6 +74,12 @@ var BuildServer = func(cfg *config.Config) Server {
 	c.Use(middleware.Logger(logger))
 
 	handler := appHandler.New()
+	handler.RegisterAction = func(ctx context.Context) appHandler.RegisterAction {
+		s := storage.NewRegistrationStorage(ctx, dbpool)
+
+		return register.New(s, logger, crypto.NewTokenGenerator())
+	}
+
 	router := appRouter.New(c).SetHandler(handler)
 
 	s := appHttp.NewServer(cfg.Address, router.Mux(), logger)

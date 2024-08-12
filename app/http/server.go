@@ -21,8 +21,12 @@ type Server struct {
 
 func NewServer(address string, mux http.Handler, logger *zap.Logger) *Server {
 	s := &http.Server{
-		Addr:    address,
-		Handler: mux,
+		Addr:              address,
+		Handler:           mux,
+		ReadTimeout:       5 * time.Second,
+		WriteTimeout:      5 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
+		IdleTimeout:       5 * time.Second,
 	}
 	return &Server{
 		s:      s,
@@ -51,7 +55,7 @@ func (s *Server) Run() {
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	fmt.Println("Got signal:", <-c)
 
-	ctx, closeFN := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, closeFN := context.WithTimeout(context.Background(), 4*time.Second)
 	defer closeFN()
 
 	err = s.s.Shutdown(ctx)

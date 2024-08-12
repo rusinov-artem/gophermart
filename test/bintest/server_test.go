@@ -13,16 +13,21 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/rusinov-artem/gophermart/test"
 	"github.com/rusinov-artem/gophermart/test/utils/writer"
 )
 
 type ServerTestsuite struct {
 	suite.Suite
-	server ServerUnderTest
+	dsn string
 }
 
 func Test_Server(t *testing.T) {
 	Run(t, &ServerTestsuite{})
+}
+
+func (s *ServerTestsuite) SetupSuite() {
+	s.dsn = test.CreateTestDB("test_can_start_server")
 }
 
 func (s *ServerTestsuite) SetupTest() {
@@ -31,21 +36,25 @@ func (s *ServerTestsuite) SetupTest() {
 	SetupCoverDir(fmt.Sprintf("/app/test/bintest/coverdir/%s", name))
 }
 
-func (s *ServerTestsuite) startServer(address string) {
-	s.server = *NewServerUnderTest("./app", "-a", address)
-	err := s.server.Start("Listening")
+func (s *ServerTestsuite) startServer(address, dsn string) *ServerUnderTest {
+	server := NewServerUnderTest("./app",
+		"-a", address,
+		"-d", dsn,
+	)
+	err := server.Start("Listening")
 	s.Require().NoError(err)
+	return server
 }
 
-func (s *ServerTestsuite) stopServer() {
-	err := s.server.Stop()
+func (s *ServerTestsuite) stopServer(server *ServerUnderTest) {
+	err := server.Stop()
 	s.Require().NoError(err)
 }
 
 func (s *ServerTestsuite) Test_CanStartServer() {
 	address := "127.0.0.1:8080"
-	s.startServer(address)
-	defer s.stopServer()
+	server := s.startServer(address, s.dsn)
+	defer s.stopServer(server)
 	url := fmt.Sprintf("http://%s/liveness", address)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	s.Require().NoError(err)
@@ -60,13 +69,12 @@ func (s *ServerTestsuite) Test_CanStartServer() {
 }
 
 func (s *ServerTestsuite) Test_CanRegister() {
-	s.T().Skip("broken")
 	address := "127.0.0.1:8080"
-	s.startServer(address)
-	defer s.stopServer()
+	server := s.startServer(address, s.dsn)
+	defer s.stopServer(server)
 
 	finder := writer.NewFinder("/api/user/register")
-	s.server.proxy.SetWriter(finder)
+	server.proxy.SetWriter(finder)
 
 	url := fmt.Sprintf("http://%s/api/user/register", address)
 	req, err := http.NewRequest(
@@ -88,8 +96,8 @@ func (s *ServerTestsuite) Test_CanRegister() {
 
 func (s *ServerTestsuite) Test_LogErrorIfUnableToBind() {
 	address := "bad_address"
-	s.server = *NewServerUnderTest("./app", "-a", address)
-	err := s.server.Start("unable to listen")
+	server := *NewServerUnderTest("./app", "-a", address)
+	err := server.Start("unable to listen")
 	s.Require().NoError(err)
 }
 
@@ -105,13 +113,19 @@ func (s *ServerTestsuite) Test_ShutdownIn5Sec() {
 	finder := writer.NewFinder("Listening")
 	proxy.SetWriter(finder)
 	address := "127.0.0.1:8989"
-	cmd := exec.Command("./app", "-a", address)
+	cmd := exec.Command("./app",
+		"-a", address,
+		"-d", s.dsn,
+	)
+
 	cmd.Stderr = proxy
 	cmd.Stdout = proxy
 	_ = cmd.Start()
 	defer func() {
-		if !cmd.ProcessState.Exited() {
-			_ = cmd.Process.Signal(syscall.SIGKILL)
+		if cmd.ProcessState != nil {
+			if !cmd.ProcessState.Exited() {
+				_ = cmd.Process.Signal(syscall.SIGKILL)
+			}
 		}
 	}()
 
@@ -122,10 +136,14 @@ func (s *ServerTestsuite) Test_ShutdownIn5Sec() {
 	proxy.SetWriter(finder2)
 	ipAddr, _ := net.ResolveTCPAddr("tcp", address)
 	c, err := net.DialTCP("tcp", nil, ipAddr)
-	defer func() { _ = c.Close() }()
 	s.Require().NoError(err)
+	_, err = c.Write([]byte("GET / HTTP/1.1"))
+	time.Sleep(500 * time.Millisecond)
+	s.Require().NoError(err)
+	defer func() { _ = c.Close() }()
+
 	_ = cmd.Process.Signal(syscall.SIGINT)
-	err = finder2.Wait(15 * time.Second)
+	err = finder2.Wait(6 * time.Second)
 	s.Require().NoError(err)
 	_ = cmd.Wait()
 }

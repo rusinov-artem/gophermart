@@ -1,5 +1,6 @@
-#!/bin/bash# needed to run tests with -race flag
+#!/bin/bash
 
+# needed to run tests with -race flag
 export CGO_ENABLED=1
 export GOCOVERDIR=/app/test/bintest/coverdir
 rm ${GOCOVERDIR:?}/* -r
@@ -14,6 +15,10 @@ if [[ R_VAL -ne "0" ]] ; then
 fi
 
 echo "OK! Compilation succeeded"
+
+export GOCOVERDIR=/app/test/bintest/coverdir/Migration
+mkdir ${GOCOVERDIR}
+./test/bintest/app migrate
 
 echo "Runing tests..."
 
