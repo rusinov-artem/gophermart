@@ -8,7 +8,6 @@ func (r *RegistrationStorage) IsLoginExists(login string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("unable to find user: %w", err)
 	}
-
 	defer rows.Close()
 
 	if !rows.Next() {

@@ -15,6 +15,7 @@ func (r *RegistrationStorage) FindOrder(orderNr string) (dto.Order, error) {
 	if err != nil {
 		return order, fmt.Errorf("unable to find order: %w", err)
 	}
+	defer rows.Close()
 
 	if !rows.Next() {
 		return order, &order2.NotFoundErr{OrderNr: orderNr}

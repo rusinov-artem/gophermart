@@ -13,16 +13,17 @@ func (r *RegistrationStorage) FindUser(login string) (dto.User, error) {
 
 	user := dto.User{}
 
-	row, err := r.pool.Query(r.ctx, sqlStr, login)
+	rows, err := r.pool.Query(r.ctx, sqlStr, login)
 	if err != nil {
 		return user, fmt.Errorf("unable to find user: %w", err)
 	}
+	defer rows.Close()
 
-	if !row.Next() {
+	if !rows.Next() {
 		return user, &actionErr.UserNotFoundErr{Login: login}
 	}
 
-	err = row.Scan(&user.Login, &user.PasswordHash)
+	err = rows.Scan(&user.Login, &user.PasswordHash)
 	if err != nil {
 		return user, fmt.Errorf("unable to find user: %w", err)
 	}
