@@ -16,6 +16,16 @@ create table "auth_token"
 alter table auth_token
     add constraint auth_token_uniq unique (token);
 
+create table "order"
+(
+    login    text not null REFERENCES "user" (login),
+    order_nr text not null,
+    PRIMARY KEY (order_nr, login)
+);
+
+alter table "order"
+    add constraint order_uniq unique (order_nr);
+
 -- +goose StatementEnd
 
 -- +goose Down
