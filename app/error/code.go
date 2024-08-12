@@ -8,6 +8,7 @@ var (
 	UnableToSaveUser         Code = 3
 	UnableToSaveToken        Code = 4
 	InvalidCredentials       Code = 5
-
-	ServiceUnavailable Code = 6
+	ServiceUnavailable       Code = 6
+	OrderNrExists            Code = 7
+	BadOrderOwnership        Code = 8
 )

@@ -23,6 +23,18 @@ func ConvertError(w http.ResponseWriter, err error) {
 			return
 		}
 
+		if e.Code == appError.OrderNrExists {
+			w.WriteHeader(http.StatusOK)
+
+			return
+		}
+
+		if e.Code == appError.BadOrderOwnership {
+			w.WriteHeader(http.StatusConflict)
+
+			return
+		}
+
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write(NewInternalErrorConverter(e).Byte())
 

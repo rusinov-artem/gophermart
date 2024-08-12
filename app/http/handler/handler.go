@@ -8,6 +8,9 @@ import (
 type Handler struct {
 	RegisterAction func(ctx context.Context) RegisterAction
 	LoginAction    func(ctx context.Context) LoginAction
+	AddOrderAction func(ctx context.Context) AddOrderAction
+
+	AuthService func(ctx context.Context) AuthService
 }
 
 func New() *Handler {
