@@ -8,9 +8,9 @@ create table "user"
 
 create table "auth_token"
 (
-    login text not null primary key,
+    login text not null REFERENCES "user" (login),
     token text not null,
-    PRIMARY KEY (login, token)
+    PRIMARY KEY (token, login)
 );
 
 -- +goose StatementEnd
