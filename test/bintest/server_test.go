@@ -75,6 +75,8 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	server := s.startServer(address, s.dsn)
 	defer s.stopServer(server)
 
+	authToken := ""
+
 	s.T().Run("can register a user", func(t *testing.T) {
 		finder := writer.NewFinder("/api/user/register")
 		server.proxy.SetWriter(finder)
@@ -95,6 +97,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 
 		s.Require().Equal(http.StatusOK, resp.StatusCode)
 		assert.NotEmpty(t, resp.Header.Get("Authorization"))
+		authToken = resp.Header.Get("Authorization")
 		s.NoError(finder.Wait(time.Second))
 	})
 
@@ -123,7 +126,6 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	})
 
 	s.T().Run("user can add order number", func(t *testing.T) {
-		t.Skip("broken")
 		finder := writer.NewFinder("/api/user/orders")
 		server.proxy.SetWriter(finder)
 
@@ -134,13 +136,14 @@ func (s *ServerTestsuite) Test_CanRegister() {
 			bytes.NewBufferString(`12345678910`))
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "text/plain")
+		req.Header.Set("Authorization", authToken)
 
 		client := http.DefaultClient
 		resp, err := client.Do(req)
 		require.NoError(t, err)
 		defer func() { _ = resp.Body.Close() }()
 
-		require.Equal(t, http.StatusOK, resp.StatusCode)
+		require.Equal(t, http.StatusAccepted, resp.StatusCode)
 		require.NoError(t, finder.Wait(time.Second))
 		fmt.Println(resp.Body)
 	})

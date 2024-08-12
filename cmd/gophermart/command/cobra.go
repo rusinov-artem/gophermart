@@ -18,6 +18,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/http/middleware"
 	appRouter "github.com/rusinov-artem/gophermart/app/http/router"
 	"github.com/rusinov-artem/gophermart/app/migration"
+	"github.com/rusinov-artem/gophermart/app/service/auth"
 	"github.com/rusinov-artem/gophermart/app/storage"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
@@ -93,7 +94,8 @@ var BuildServer = func(cfg *config.Config) Server {
 	}
 
 	handler.AuthService = func(ctx context.Context) appHandler.AuthService {
-		return nil
+		s := storage.NewRegistrationStorage(ctx, dbpool)
+		return auth.NewService(s)
 	}
 
 	handler.AddOrderAction = func(ctx context.Context) appHandler.AddOrderAction {
