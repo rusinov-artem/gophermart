@@ -31,6 +31,7 @@ func (s *RegistrationStorageTestSuite) SetupSuite() {
 }
 
 func (s *RegistrationStorageTestSuite) SetupTest() {
+	s.T().Parallel()
 	s.storage = storage.NewRegistrationStorage(s.ctx, s.pool)
 }
 
@@ -58,6 +59,10 @@ func (s *RegistrationStorageTestSuite) Test_CanAddToken() {
 	token := "some token"
 	err = s.storage.AddToken(login, token)
 	s.Require().NoError(err)
+
+	foundLogin, err := s.storage.FindToken(token)
+	s.Require().NoError(err)
+	s.Equal(login, foundLogin)
 
 	s.AssertToken(token, login)
 }
@@ -89,6 +94,11 @@ func (s *RegistrationStorageTestSuite) Test_CanFinduser() {
 	user, err := s.storage.FindUser("user_to_find")
 	s.Require().NoError(err)
 	s.Equal("user_to_find", user.Login)
+}
+
+func (s *RegistrationStorageTestSuite) Test_CantFindUnknownToken() {
+	_, err := s.storage.FindToken("unknown_token")
+	s.Require().Error(err)
 }
 
 func (s *RegistrationStorageTestSuite) AssertToken(token, login string) {
