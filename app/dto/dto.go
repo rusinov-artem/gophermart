@@ -14,3 +14,8 @@ type User struct {
 	Login        string
 	PasswordHash string
 }
+
+type Order struct {
+	OrderNr string
+	Login   string
+}

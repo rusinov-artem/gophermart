@@ -1,7 +1,11 @@
 package order
 
-type InvalidOrderNrFormat struct{}
+import "fmt"
 
-func (t *InvalidOrderNrFormat) Error() string {
-	return "order number is invalid"
+type NotFoundErr struct {
+	OrderNr string
+}
+
+func (e *NotFoundErr) Error() string {
+	return fmt.Sprintf("order not found: %s", e.OrderNr)
 }
