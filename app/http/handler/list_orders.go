@@ -65,6 +65,7 @@ func encodeOrderList(orders []dto.OrderListItem) []byte {
 			}(),
 		}
 	}
+
 	b, _ := json.MarshalIndent(jsonOrderList, "", "\t")
 	return b
 }
