@@ -77,6 +77,20 @@ func (s *RegistrationStorageTestSuite) Test_TwoUsersSameToken() {
 	s.Require().Error(err)
 }
 
+func (s *RegistrationStorageTestSuite) Test_UnableToFindUnknownUser() {
+	_, err := s.storage.FindUser("unknown user")
+	s.Require().Error(err)
+}
+
+func (s *RegistrationStorageTestSuite) Test_CanFinduser() {
+	err := s.storage.SaveUser("user_to_find", "password")
+	s.Require().NoError(err)
+
+	user, err := s.storage.FindUser("user_to_find")
+	s.Require().NoError(err)
+	s.Equal("user_to_find", user.Login)
+}
+
 func (s *RegistrationStorageTestSuite) AssertToken(token, login string) {
 	s.T().Helper()
 
