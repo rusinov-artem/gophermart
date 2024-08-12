@@ -11,4 +11,5 @@ var (
 	ServiceUnavailable       Code = 6
 	OrderNrExists            Code = 7
 	BadOrderOwnership        Code = 8
+	NoOrdersFound            Code = 9
 )

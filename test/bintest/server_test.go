@@ -159,6 +159,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 			url,
 			nil,
 		)
+
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "text/plain")
 		req.Header.Set("Authorization", authToken)

@@ -35,6 +35,12 @@ func ConvertError(w http.ResponseWriter, err error) {
 			return
 		}
 
+		if e.Code == appError.NoOrdersFound {
+			w.WriteHeader(http.StatusNoContent)
+
+			return
+		}
+
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write(NewInternalErrorConverter(e).Byte())
 
