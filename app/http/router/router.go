@@ -8,6 +8,7 @@ type Handler interface {
 	Liveness(http.ResponseWriter, *http.Request)
 	Register(http.ResponseWriter, *http.Request)
 	Login(http.ResponseWriter, *http.Request)
+	AddOrder(http.ResponseWriter, *http.Request)
 }
 
 type Mux interface {
@@ -43,9 +44,14 @@ func (r *Router) RegisterLogin(h http.HandlerFunc) {
 	r.mux.Method(http.MethodPost, "/api/user/login", h)
 }
 
+func (r *Router) RegisterAddOrder(h http.HandlerFunc) {
+	r.mux.Method(http.MethodPost, "/api/user/orders", h)
+}
+
 func (r *Router) SetHandler(h Handler) *Router {
 	r.RegisterLiveness(h.Liveness)
 	r.RegisterRegister(h.Register)
 	r.RegisterLogin(h.Login)
+	r.RegisterAddOrder(h.AddOrder)
 	return r
 }
