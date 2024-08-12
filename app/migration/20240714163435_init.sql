@@ -13,6 +13,9 @@ create table "auth_token"
     PRIMARY KEY (token, login)
 );
 
+alter table auth_token
+    add constraint auth_token_uniq unique (token);
+
 -- +goose StatementEnd
 
 -- +goose Down

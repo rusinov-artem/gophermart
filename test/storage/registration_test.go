@@ -62,6 +62,21 @@ func (s *RegistrationStorageTestSuite) Test_CanAddToken() {
 	s.AssertToken(token, login)
 }
 
+func (s *RegistrationStorageTestSuite) Test_TwoUsersSameToken() {
+	err := s.storage.SaveUser("user1", "password")
+	s.Require().NoError(err)
+
+	err = s.storage.SaveUser("user2", "password")
+	s.Require().NoError(err)
+
+	token := "token_for_2_users"
+	err = s.storage.AddToken("user1", token)
+	s.Require().NoError(err)
+
+	err = s.storage.AddToken("user2", token)
+	s.Require().Error(err)
+}
+
 func (s *RegistrationStorageTestSuite) AssertToken(token, login string) {
 	s.T().Helper()
 

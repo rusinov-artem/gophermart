@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,7 +60,19 @@ func (s *RegistrationTestSuite) Test_CanRegisterAUser() {
 
 	resp := s.do(req)
 
-	fmt.Println(resp.Body)
+	s.Equal(http.StatusOK, resp.Code)
+	s.Equal("application/json", resp.Header().Get("Content-Type"))
+}
+
+func (s *RegistrationTestSuite) Test_ErrorIfUserAlreadyExists() {
+	req := s.registerReq(`{"login":"alreadyExists", "password": "password"}`)
+	_ = s.do(req)
+
+	req = s.registerReq(`{"login":"alreadyExists", "password": "password"}`)
+	resp := s.do(req)
+
+	s.Equal(http.StatusConflict, resp.Code)
+	s.Equal("application/json", resp.Header().Get("Content-Type"))
 }
 
 func (s *RegistrationTestSuite) registerReq(body string) *http.Request {
