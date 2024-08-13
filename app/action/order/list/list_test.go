@@ -124,7 +124,7 @@ type accrual struct {
 	queryOrders    []dto.OrderListItem
 }
 
-func (t *accrual) FetchOrders(orders *[]dto.OrderListItem) error {
-	t.queryOrders = *orders
+func (t *accrual) EnrichOrders(orders []dto.OrderListItem) error {
+	t.queryOrders = orders
 	return t.fetchOrdersErr
 }

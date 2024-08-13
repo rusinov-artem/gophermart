@@ -8,7 +8,7 @@ import (
 )
 
 type Accrual interface {
-	FetchOrders(orders *[]dto.OrderListItem) error
+	EnrichOrders(orders []dto.OrderListItem) error
 }
 
 type Storage interface {
@@ -49,7 +49,7 @@ func (t *Action) ListOrders(login string) ([]dto.OrderListItem, *appError.Intern
 		}
 	}
 
-	err = t.accrual.FetchOrders(&orders)
+	err = t.accrual.EnrichOrders(orders)
 	if err != nil {
 		logger.Error(err.Error(), zap.Error(err))
 		return nil, &appError.InternalError{
