@@ -27,7 +27,7 @@ func Test_Client(t *testing.T) {
 func (s *ClientTestSuite) SetupTest() {
 	s.ctx = context.Background()
 	s.accrual = fakes.NewAccrual(s.T())
-	s.client = accrualClient.New(s.ctx, s.accrual.Addr())
+	s.client = accrualClient.New(s.ctx, s.accrual.URL())
 }
 
 func (s *ClientTestSuite) Test_ErrorIfOrderNotFound() {

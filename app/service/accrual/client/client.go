@@ -23,7 +23,7 @@ func New(ctx context.Context, address string) *Client {
 
 func (c *Client) GetSingleOrder(orderNr string) (dto.OrderListItem, error) {
 	order := dto.OrderListItem{}
-	url := fmt.Sprintf("http://%s/api/orders/%s", c.address, orderNr)
+	url := fmt.Sprintf("%s/api/orders/%s", c.address, orderNr)
 	req, _ := http.NewRequestWithContext(c.ctx, http.MethodGet, url, nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
