@@ -25,6 +25,7 @@ func (c *Client) GetSingleOrder(orderNr string) (dto.OrderListItem, error) {
 	order := dto.OrderListItem{}
 	url := fmt.Sprintf("%s/api/orders/%s", c.address, orderNr)
 	req, _ := http.NewRequestWithContext(c.ctx, http.MethodGet, url, nil)
+	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return order, fmt.Errorf("unable to fetch order info: %w", err)

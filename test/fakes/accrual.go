@@ -19,8 +19,9 @@ type Accrual struct {
 }
 
 type Request struct {
-	Method string
-	Path   string
+	Method  string
+	Path    string
+	Headers http.Header
 }
 
 func NewAccrual(t *testing.T) *Accrual {
@@ -36,6 +37,9 @@ func NewAccrual(t *testing.T) *Accrual {
 	serverHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		m.Lock()
 		defer m.Unlock()
+		m.Req.Method = r.Method
+		m.Req.Path = r.URL.Path
+		m.Req.Headers = r.Header.Clone()
 		if m.handlerFunc != nil {
 			m.handlerFunc(w, r)
 			return
@@ -70,8 +74,6 @@ func (s *Accrual) WillReturn204() {
 
 	s.handlerFunc = func(w http.ResponseWriter, r *http.Request) {
 		defer func() { _ = r.Body.Close() }()
-		s.Req.Method = r.Method
-		s.Req.Path = r.URL.Path
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
@@ -82,8 +84,6 @@ func (s *Accrual) WillReturnOrder(o dto.OrderListItem) {
 
 	s.handlerFunc = func(w http.ResponseWriter, r *http.Request) {
 		defer func() { _ = r.Body.Close() }()
-		s.Req.Method = r.Method
-		s.Req.Path = r.URL.Path
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_, _ = fmt.Fprintf(w, `

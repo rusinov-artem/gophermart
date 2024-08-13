@@ -34,8 +34,9 @@ func (s *ClientTestSuite) Test_ErrorIfOrderNotFound() {
 	s.accrual.WillReturn204()
 	_, err := s.client.GetSingleOrder("unknown")
 	s.Error(err)
-	s.Equal(s.accrual.Req.Method, http.MethodGet)
+	s.Equal(http.MethodGet, s.accrual.Req.Method)
 	s.Equal("/api/orders/unknown", s.accrual.Req.Path)
+	s.Equal("application/json", s.accrual.Req.Headers.Get("Content-Type"))
 }
 
 func (s *ClientTestSuite) Test_CanFetchOrder() {
@@ -49,7 +50,7 @@ func (s *ClientTestSuite) Test_CanFetchOrder() {
 
 	order, err := s.client.GetSingleOrder("orderNr")
 	s.NoError(err)
-	s.Equal(s.accrual.Req.Method, http.MethodGet)
+	s.Equal(http.MethodGet, s.accrual.Req.Method)
 	s.Equal("/api/orders/orderNr", s.accrual.Req.Path)
 
 	s.Equal(accrual.REGISTERED, order.Status)
