@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/rusinov-artem/gophermart/app/action/order"
+	"github.com/rusinov-artem/gophermart/app/dto"
 	"github.com/rusinov-artem/gophermart/app/storage"
 	"github.com/rusinov-artem/gophermart/test"
 )
@@ -118,6 +119,57 @@ func (s *OrderStorageTestSuite) Test_CanListMultipleOrders() {
 	s.Len(orders, 3)
 
 	s.LessOrEqual(orders[0].UploadAt, orders[1].UploadAt)
+}
+
+func (s *OrderStorageTestSuite) Test_CanUpdateSingleOrderState() {
+	s.Require().NoError(s.storage.SaveUser("login9", "password"))
+	s.Require().NoError(s.storage.AddOrder("login9", "OrderNR011"))
+
+	err := s.storage.UpdateOrdersState([]dto.OrderListItem{
+		{
+			OrderNr: "OrderNR011",
+			Status:  "PROCESSED",
+			Accrual: 42,
+		},
+	})
+	s.Require().NoError(err)
+
+	orders, err := s.storage.ListOrders("login9")
+	s.Require().NoError(err)
+	s.Len(orders, 1)
+	s.Equal(orders[0].OrderNr, "OrderNR011")
+	s.Equal(orders[0].Status, "PROCESSED")
+	s.Equal(orders[0].Accrual, int64(42))
+}
+
+func (s *OrderStorageTestSuite) Test_CanUpdateMultipleOrders() {
+	s.Require().NoError(s.storage.SaveUser("login10", "password"))
+
+	s.Require().NoError(s.storage.AddOrder("login10", "OrderNR012"))
+	s.SetOrderUploadAt("OrderNR012", "2024-04-01 00:00:00")
+
+	s.Require().NoError(s.storage.AddOrder("login10", "OrderNR013"))
+	s.SetOrderUploadAt("OrderNR012", "2024-04-02 00:00:00")
+
+	err := s.storage.UpdateOrdersState([]dto.OrderListItem{
+		{
+			OrderNr: "OrderNR012",
+			Status:  "PROCESSED",
+			Accrual: 42,
+		},
+		{
+			OrderNr: "OrderNR013",
+			Status:  "PROCESSING",
+		},
+	})
+
+	s.Require().NoError(err)
+
+	orders, err := s.storage.ListOrders("login10")
+	s.Require().NoError(err)
+	s.Len(orders, 2)
+	s.Equal(orders[0].Accrual, int64(42))
+	s.Equal(orders[1].Accrual, int64(0))
 }
 
 func (s *OrderStorageTestSuite) SetOrderUploadAt(orderNr string, dt string) {
