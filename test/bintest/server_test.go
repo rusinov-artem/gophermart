@@ -149,7 +149,6 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	})
 
 	s.T().Run("user can list orders", func(t *testing.T) {
-		t.Skip("broken")
 		finder := writer.NewFinder("/api/user/orders")
 		server.proxy.SetWriter(finder)
 

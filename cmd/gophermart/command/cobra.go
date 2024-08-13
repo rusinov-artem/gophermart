@@ -11,6 +11,7 @@ import (
 
 	"github.com/rusinov-artem/gophermart/app/action/login"
 	"github.com/rusinov-artem/gophermart/app/action/order/add"
+	"github.com/rusinov-artem/gophermart/app/action/order/list"
 	"github.com/rusinov-artem/gophermart/app/action/register"
 	"github.com/rusinov-artem/gophermart/app/crypto"
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
@@ -18,6 +19,8 @@ import (
 	"github.com/rusinov-artem/gophermart/app/http/middleware"
 	appRouter "github.com/rusinov-artem/gophermart/app/http/router"
 	"github.com/rusinov-artem/gophermart/app/migration"
+	"github.com/rusinov-artem/gophermart/app/service/accrual"
+	"github.com/rusinov-artem/gophermart/app/service/accrual/client"
 	"github.com/rusinov-artem/gophermart/app/service/auth"
 	"github.com/rusinov-artem/gophermart/app/storage"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
@@ -102,6 +105,17 @@ var BuildServer = func(cfg *config.Config) Server {
 		s := storage.NewRegistrationStorage(ctx, dbpool)
 
 		action := add.New(s, logger)
+
+		return action
+	}
+
+	handler.ListOrdersAction = func(ctx context.Context) appHandler.ListOrdersAction {
+		s := storage.NewRegistrationStorage(ctx, dbpool)
+
+		c := client.New(ctx, cfg.AccrualSystemAddress)
+		a := accrual.NewService(c, s, logger)
+
+		action := list.New(s, a, logger)
 
 		return action
 	}
