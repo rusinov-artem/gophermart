@@ -97,9 +97,9 @@ func (s *OrderStorageTestSuite) Test_CanListSingleOrder() {
 	orders, err := s.storage.ListOrders("login7")
 	s.Require().NoError(err)
 	s.Len(orders, 1)
-	s.Equal(orders[0].OrderNr, "OrderNR007")
-	s.Equal(orders[0].Status, "NEW")
-	s.Equal(orders[0].Accrual, int64(0))
+	s.Equal("OrderNR007", orders[0].OrderNr)
+	s.Equal("NEW", orders[0].Status)
+	s.Equal(float32(0), orders[0].Accrual)
 	s.NotEmpty(orders[0].UploadAt)
 }
 
@@ -137,9 +137,9 @@ func (s *OrderStorageTestSuite) Test_CanUpdateSingleOrderState() {
 	orders, err := s.storage.ListOrders("login9")
 	s.Require().NoError(err)
 	s.Len(orders, 1)
-	s.Equal(orders[0].OrderNr, "OrderNR011")
-	s.Equal(orders[0].Status, "PROCESSED")
-	s.Equal(orders[0].Accrual, int64(42))
+	s.Equal("OrderNR011", orders[0].OrderNr)
+	s.Equal("PROCESSED", orders[0].Status)
+	s.Equal(float32(42), orders[0].Accrual)
 }
 
 func (s *OrderStorageTestSuite) Test_CanUpdateMultipleOrders() {
@@ -168,8 +168,8 @@ func (s *OrderStorageTestSuite) Test_CanUpdateMultipleOrders() {
 	orders, err := s.storage.ListOrders("login10")
 	s.Require().NoError(err)
 	s.Len(orders, 2)
-	s.Equal(orders[0].Accrual, int64(42))
-	s.Equal(orders[1].Accrual, int64(0))
+	s.Equal(float32(42), orders[0].Accrual)
+	s.Equal(float32(0), orders[1].Accrual)
 }
 
 func (s *OrderStorageTestSuite) SetOrderUploadAt(orderNr string, dt string) {

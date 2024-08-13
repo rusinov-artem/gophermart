@@ -40,10 +40,10 @@ func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
 
 func encodeOrderList(orders []dto.OrderListItem) []byte {
 	type jsonOrder struct {
-		Number     string `json:"number"`
-		Status     string `json:"status"`
-		Accrual    *int64 `json:"accrual,omitempty"`
-		UploadedAt string `json:"uploaded_at"`
+		Number     string   `json:"number"`
+		Status     string   `json:"status"`
+		Accrual    *float32 `json:"accrual,omitempty"`
+		UploadedAt string   `json:"uploaded_at"`
 	}
 
 	jsonOrderList := make([]jsonOrder, len(orders))
@@ -52,7 +52,7 @@ func encodeOrderList(orders []dto.OrderListItem) []byte {
 			Number: orders[i].OrderNr,
 			Status: orders[i].Status,
 
-			Accrual: func() *int64 {
+			Accrual: func() *float32 {
 				if orders[i].Status == "PROCESSED" {
 					return &orders[i].Accrual
 				}

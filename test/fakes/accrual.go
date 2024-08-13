@@ -90,7 +90,7 @@ func (s *Accrual) WillReturnOrder(o dto.OrderListItem) {
 			{
 			  "order": "%s",
 			  "status": "%s",
-			  "accrual": %d
+			  "accrual": %f
 			}
 		`,
 			o.OrderNr, o.Status, o.Accrual)

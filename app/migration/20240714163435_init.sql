@@ -22,7 +22,7 @@ create table "order"
     order_nr  text           not null,
     status    text           not null default 'NEW',
     upload_at timestamptz(0) not null default now(),
-    accrual   bigint,
+    accrual   double precision,
     PRIMARY KEY (order_nr, login)
 );
 

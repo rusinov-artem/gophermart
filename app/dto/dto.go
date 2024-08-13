@@ -25,6 +25,6 @@ type Order struct {
 type OrderListItem struct {
 	OrderNr  string
 	Status   string
-	Accrual  int64
+	Accrual  float32
 	UploadAt time.Time
 }

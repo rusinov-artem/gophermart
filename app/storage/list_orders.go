@@ -24,7 +24,7 @@ func (r *RegistrationStorage) ListOrders(login string) ([]dto.OrderListItem, err
 	type dbOrder struct {
 		OrderNr  string
 		Status   string
-		Accrual  sql.NullInt64
+		Accrual  sql.NullFloat64
 		UploadAt time.Time
 	}
 
@@ -39,7 +39,7 @@ func (r *RegistrationStorage) ListOrders(login string) ([]dto.OrderListItem, err
 		orders = append(orders, dto.OrderListItem{
 			OrderNr:  o.OrderNr,
 			Status:   o.Status,
-			Accrual:  o.Accrual.Int64,
+			Accrual:  float32(o.Accrual.Float64),
 			UploadAt: o.UploadAt,
 		})
 	}

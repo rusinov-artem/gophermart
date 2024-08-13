@@ -36,9 +36,9 @@ func (c *Client) GetSingleOrder(orderNr string) (dto.OrderListItem, error) {
 	}
 
 	jsonOrder := struct {
-		OrderNr string `json:"order"`
-		Status  string `json:"status"`
-		Accrual int64  `json:"accrual"`
+		OrderNr string  `json:"order"`
+		Status  string  `json:"status"`
+		Accrual float32 `json:"accrual"`
 	}{}
 
 	err = json.NewDecoder(resp.Body).Decode(&jsonOrder)

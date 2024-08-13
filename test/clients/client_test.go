@@ -40,7 +40,7 @@ func (s *ClientTestSuite) Test_ErrorIfOrderNotFound() {
 
 func (s *ClientTestSuite) Test_CanFetchOrder() {
 	orderNr := "OrderNR"
-	points := int64(123)
+	points := float32(123)
 	s.accrual.WillReturnOrder(dto.OrderListItem{
 		OrderNr: orderNr,
 		Status:  accrual.REGISTERED,
