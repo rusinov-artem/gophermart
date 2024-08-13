@@ -5,8 +5,11 @@ import (
 
 	"go.uber.org/zap"
 
+	appOrder "github.com/rusinov-artem/gophermart/app/action/order"
 	"github.com/rusinov-artem/gophermart/app/dto"
 )
+
+const REGISTERED = "REGISTERED"
 
 type Client interface {
 	GetSingleOrder(orderNr string) (dto.OrderListItem, error)
@@ -55,4 +58,7 @@ func (s *Service) enrichSingleOrder(order *dto.OrderListItem) {
 
 	order.Accrual = accrualOrder.Accrual
 	order.Status = accrualOrder.Status
+	if order.Status == "REGISTERED" {
+		order.Status = appOrder.NEW
+	}
 }

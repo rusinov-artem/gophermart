@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	appOrder "github.com/rusinov-artem/gophermart/app/action/order"
 	"github.com/rusinov-artem/gophermart/app/dto"
 	"github.com/rusinov-artem/gophermart/test/utils/logger"
 )
@@ -42,7 +43,7 @@ func (s *AccrualServiceTestSuite) Test_UnableGetOrderFromAccrual() {
 	orders := []dto.OrderListItem{
 		{
 			OrderNr:  "OrderNr001",
-			Status:   "NEW",
+			Status:   appOrder.NEW,
 			Accrual:  0,
 			UploadAt: dt,
 		},
@@ -55,7 +56,7 @@ func (s *AccrualServiceTestSuite) Test_UnableGetOrderFromAccrual() {
 
 	s.Equal(dto.OrderListItem{
 		OrderNr:  "OrderNr001",
-		Status:   "NEW",
+		Status:   appOrder.NEW,
 		Accrual:  0,
 		UploadAt: dt,
 	}, orders[0])
@@ -68,7 +69,7 @@ func (s *AccrualServiceTestSuite) Test_UnableGetOrderFromAccrual_OrderStateNotCh
 	orders := []dto.OrderListItem{
 		{
 			OrderNr:  "OrderNr001",
-			Status:   "PROCESSED",
+			Status:   appOrder.PROCESSED,
 			Accrual:  55,
 			UploadAt: dt,
 		},
@@ -81,12 +82,42 @@ func (s *AccrualServiceTestSuite) Test_UnableGetOrderFromAccrual_OrderStateNotCh
 
 	s.Equal(dto.OrderListItem{
 		OrderNr:  "OrderNr001",
-		Status:   "PROCESSED",
+		Status:   appOrder.PROCESSED,
 		Accrual:  55,
 		UploadAt: dt,
 	}, orders[0])
 
 	s.Contains(s.logs.String(), "network error")
+}
+
+func (s *AccrualServiceTestSuite) Test_DoNotChangeStatusToREGISTERED() {
+	dt := time.Now()
+	orders := []dto.OrderListItem{
+		{
+			OrderNr:  "OrderNr001",
+			Status:   appOrder.NEW,
+			Accrual:  55,
+			UploadAt: dt,
+		},
+	}
+
+	s.client.order = dto.OrderListItem{
+		OrderNr:  "OrderNr001",
+		Status:   REGISTERED,
+		Accrual:  55,
+		UploadAt: dt,
+	}
+
+	err := s.service.EnrichOrders(orders)
+	s.Require().NoError(err)
+
+	s.Equal(dto.OrderListItem{
+		OrderNr:  "OrderNr001",
+		Status:   appOrder.NEW,
+		Accrual:  55,
+		UploadAt: dt,
+	}, orders[0])
+
 }
 
 func (s *AccrualServiceTestSuite) Test_UnableToUpdateOrderState() {

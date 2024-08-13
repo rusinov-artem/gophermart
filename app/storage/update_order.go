@@ -3,6 +3,7 @@ package storage
 import (
 	"github.com/jackc/pgx/v5"
 
+	"github.com/rusinov-artem/gophermart/app/action/order"
 	"github.com/rusinov-artem/gophermart/app/dto"
 )
 
@@ -13,7 +14,7 @@ func (r *RegistrationStorage) UpdateOrdersState(orders []dto.OrderListItem) erro
 	batch := pgx.Batch{}
 
 	for i := range orders {
-		if orders[i].Status == "PROCESSED" {
+		if orders[i].Status == order.PROCESSED {
 			batch.Queue(ProcessedSQL, orders[i].Status, orders[i].Accrual, orders[i].OrderNr)
 		} else {
 			batch.Queue(progressSQL, orders[i].Status, orders[i].OrderNr)
