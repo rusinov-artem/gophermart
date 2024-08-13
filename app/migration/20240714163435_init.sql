@@ -18,8 +18,11 @@ alter table auth_token
 
 create table "order"
 (
-    login    text not null REFERENCES "user" (login),
-    order_nr text not null,
+    login     text           not null REFERENCES "user" (login),
+    order_nr  text           not null,
+    status    text           not null default 'NEW',
+    upload_at timestamptz(0) not null default now(),
+    accrual   bigint,
     PRIMARY KEY (order_nr, login)
 );
 

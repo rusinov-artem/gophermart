@@ -83,3 +83,46 @@ func (s *OrderStorageTestSuite) Test_CantAddSingleOrderToMultipleUsers() {
 	s.Require().NoError(s.storage.AddOrder("login4", "OrderNR006"))
 	s.Require().Error(s.storage.AddOrder("login5", "OrderNR006"))
 }
+
+func (s *OrderStorageTestSuite) Test_CanGetEmptyOrdersList() {
+	orders, err := s.storage.ListOrders("login6")
+	s.Require().NoError(err)
+	s.Len(orders, 0)
+}
+
+func (s *OrderStorageTestSuite) Test_CanListSingleOrder() {
+	s.Require().NoError(s.storage.SaveUser("login7", "password"))
+	s.Require().NoError(s.storage.AddOrder("login7", "OrderNR007"))
+	orders, err := s.storage.ListOrders("login7")
+	s.Require().NoError(err)
+	s.Len(orders, 1)
+	s.Equal(orders[0].OrderNr, "OrderNR007")
+	s.Equal(orders[0].Status, "NEW")
+	s.Equal(orders[0].Accrual, int64(0))
+	s.NotEmpty(orders[0].UploadAt)
+}
+
+func (s *OrderStorageTestSuite) Test_CanListMultipleOrders() {
+	s.Require().NoError(s.storage.SaveUser("login8", "password"))
+	s.Require().NoError(s.storage.AddOrder("login8", "OrderNR008"))
+	s.Require().NoError(s.storage.AddOrder("login8", "OrderNR009"))
+	s.Require().NoError(s.storage.AddOrder("login8", "OrderNR010"))
+
+	s.SetOrderUploadAt("OrderNR008", "2024-04-01 00:00:00")
+	s.SetOrderUploadAt("OrderNR009", "2024-05-01 00:00:00")
+	s.SetOrderUploadAt("OrderNR010", "2024-05-06 00:00:00")
+
+	orders, err := s.storage.ListOrders("login8")
+
+	s.Require().NoError(err)
+	s.Len(orders, 3)
+
+	s.LessOrEqual(orders[0].UploadAt, orders[1].UploadAt)
+}
+
+func (s *OrderStorageTestSuite) SetOrderUploadAt(orderNr string, dt string) {
+	sqlStr := `UPDATE "order" SET upload_at = $1 WHERE order_nr = $2`
+
+	_, err := s.pool.Exec(s.ctx, sqlStr, dt, orderNr)
+	s.Require().NoError(err)
+}
