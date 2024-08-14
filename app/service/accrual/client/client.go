@@ -33,7 +33,7 @@ func (c *Client) GetSingleOrder(orderNr string) (dto.OrderListItem, error) {
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		return order, fmt.Errorf("unable to fetch order info: %w", err)
+		return order, fmt.Errorf("unable to fetch order info: http.code %d", resp.StatusCode)
 	}
 
 	jsonOrder := struct {

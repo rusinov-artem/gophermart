@@ -2,7 +2,6 @@ package add
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 
 	"go.uber.org/zap"
@@ -65,18 +64,6 @@ func (t *Action) SaveOrder(login, orderNr string) *appError.InternalError {
 		Msg:  "order already exists",
 		Code: appError.OrderNrExists,
 	}
-}
-
-func (t *Action) Validate(orderNr string) error {
-	if orderNr == "" {
-		return fmt.Errorf("empty order")
-	}
-
-	if !t.rule.Match([]byte(orderNr)) {
-		return fmt.Errorf("orderNr has invalid format")
-	}
-
-	return nil
 }
 
 func (t *Action) addOrder(logger *zap.Logger, login, orderNr string) *appError.InternalError {

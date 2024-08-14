@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/rusinov-artem/gophermart/app/action/order"
 	"github.com/rusinov-artem/gophermart/test"
 	"github.com/rusinov-artem/gophermart/test/utils/writer"
 )
@@ -76,6 +77,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	defer s.stopServer(server)
 
 	authToken := ""
+	orderNr := order.OrderNr()
 
 	s.T().Run("can register a user", func(t *testing.T) {
 		finder := writer.NewFinder("/api/user/register")
@@ -133,7 +135,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		req, err := http.NewRequest(
 			http.MethodPost,
 			url,
-			bytes.NewBufferString(`12345678910`))
+			bytes.NewBufferString(orderNr))
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "text/plain")
 		req.Header.Set("Authorization", authToken)
