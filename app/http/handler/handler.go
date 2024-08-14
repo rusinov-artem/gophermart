@@ -12,6 +12,7 @@ type Handler struct {
 
 	AuthService      func(ctx context.Context) AuthService
 	ListOrdersAction func(ctx context.Context) ListOrdersAction
+	GetBalanceAction func(ctx context.Context) GetBalanceAction
 }
 
 func New() *Handler {

@@ -28,3 +28,8 @@ type OrderListItem struct {
 	Accrual  float32
 	UploadAt time.Time
 }
+
+type Balance struct {
+	Current   float32
+	Withdrawn float32
+}
