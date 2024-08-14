@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/rusinov-artem/gophermart/app/action/order"
+)
 
 type RegisterParams struct {
 	Login    string
@@ -27,6 +31,19 @@ type OrderListItem struct {
 	Status   string
 	Accrual  float32
 	UploadAt time.Time
+}
+
+type OrderList []OrderListItem
+
+func (t OrderList) Total() float32 {
+	var total float32
+	for i := range t {
+		if t[i].Status == order.PROCESSED {
+			total += t[i].Accrual
+		}
+	}
+
+	return total
 }
 
 type Balance struct {

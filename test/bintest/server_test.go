@@ -177,7 +177,6 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	})
 
 	s.T().Run("user can check balance", func(t *testing.T) {
-		t.Skip("broken")
 		finder := writer.NewFinder("/api/user/balance")
 		server.proxy.SetWriter(finder)
 

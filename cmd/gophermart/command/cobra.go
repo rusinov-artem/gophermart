@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
+	"github.com/rusinov-artem/gophermart/app/action/balance/get"
 	"github.com/rusinov-artem/gophermart/app/action/login"
 	"github.com/rusinov-artem/gophermart/app/action/order/add"
 	"github.com/rusinov-artem/gophermart/app/action/order/list"
@@ -119,6 +120,17 @@ var BuildServer = func(cfg *config.Config) Server {
 
 		action := list.New(orderService)
 
+		return action
+	}
+
+	handler.GetBalanceAction = func(ctx context.Context) appHandler.GetBalanceAction {
+		storage := storage.NewRegistrationStorage(ctx, dbpool)
+
+		accrualClient := client.New(ctx, cfg.AccrualSystemAddress)
+		accrualService := accrual.NewService(accrualClient, storage, logger)
+		orderService := order.NewOrderService(logger, storage, accrualService)
+
+		action := get.New(orderService)
 		return action
 	}
 
