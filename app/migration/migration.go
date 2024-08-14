@@ -12,16 +12,11 @@ import (
 
 func Migrate(log *zap.Logger, pool *pgxpool.Pool) {
 	db := stdlib.OpenDBFromPool(pool)
-	if err := goose.SetDialect("pgx"); err != nil {
-		log.Error("goose: unable to set dialect", zap.Error(err))
-	}
+	_ = goose.SetDialect("pgx")
 
 	migrationDir := os.Getenv("MIGRATION_DIR")
 	if migrationDir == "" {
-		dir, err := os.Getwd()
-		if err != nil {
-			log.Error("goose: unable get current working directory", zap.Error(err))
-		}
+		dir, _ := os.Getwd()
 
 		migrationDir = fmt.Sprintf("%s/app/migration", dir)
 	}

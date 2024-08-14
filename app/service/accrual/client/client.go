@@ -9,15 +9,21 @@ import (
 	"github.com/rusinov-artem/gophermart/app/dto"
 )
 
+type httpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Client struct {
 	ctx     context.Context
 	address string
+	client  httpClient
 }
 
 func New(ctx context.Context, address string) *Client {
 	return &Client{
 		ctx:     ctx,
 		address: address,
+		client:  http.DefaultClient,
 	}
 }
 
@@ -26,7 +32,7 @@ func (c *Client) GetSingleOrder(orderNr string) (dto.OrderListItem, error) {
 	url := fmt.Sprintf("%s/api/orders/%s", c.address, orderNr)
 	req, _ := http.NewRequestWithContext(c.ctx, http.MethodGet, url, nil)
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return order, fmt.Errorf("unable to fetch order info: %w", err)
 	}

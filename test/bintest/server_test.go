@@ -17,12 +17,15 @@ import (
 
 	"github.com/rusinov-artem/gophermart/app/action/order"
 	"github.com/rusinov-artem/gophermart/test"
+	"github.com/rusinov-artem/gophermart/test/utils"
 	"github.com/rusinov-artem/gophermart/test/utils/writer"
 )
 
 type ServerTestsuite struct {
 	suite.Suite
-	dsn string
+	dsn       string
+	env       *utils.EnvManager
+	cleanEnvs func()
 }
 
 func Test_Server(t *testing.T) {
@@ -37,6 +40,11 @@ func (s *ServerTestsuite) SetupTest() {
 	name := s.T().Name()
 	name = strings.ReplaceAll(name, "/", "-")
 	SetupCoverDir(fmt.Sprintf("/app/test/bintest/coverdir/%s", name))
+	s.env, s.cleanEnvs = utils.NewEnvManager()
+}
+
+func (s *ServerTestsuite) TearDownTest() {
+	s.cleanEnvs()
 }
 
 func (s *ServerTestsuite) startServer(address, dsn string) *ServerUnderTest {
@@ -241,6 +249,28 @@ func (s *ServerTestsuite) Test_Exit1() {
 	_ = cmd.Start()
 	_ = cmd.Wait()
 	s.Require().Equal(1, cmd.ProcessState.ExitCode())
+}
+
+func (s *ServerTestsuite) Test_MigrationError() {
+	cmd := exec.Command("./app", "migrate",
+		"-d", "badurl",
+	)
+	_ = cmd.Start()
+	_ = cmd.Wait()
+	s.Require().Equal(1, cmd.ProcessState.ExitCode())
+}
+
+func (s *ServerTestsuite) Test_MigrateWithoutMigrationDir() {
+	s.env.Set("MIGRATION_DIR", "")
+	cmd := exec.Command("./app", "migrate")
+	proxy := writer.NewProxy()
+	finder := writer.NewFinder("goose: unable to run migration")
+	proxy.SetWriter(finder)
+	cmd.Stdout = proxy
+	cmd.Stderr = proxy
+	_ = cmd.Start()
+	_ = cmd.Wait()
+	s.NoError(finder.Wait(time.Second))
 }
 
 func (s *ServerTestsuite) Test_ShutdownIn5Sec() {

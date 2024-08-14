@@ -57,9 +57,6 @@ func DigitString(minLen, maxLen int) string {
 	for len(s) < slen {
 		idx := rand.Intn(len(letters) - 1)
 		char := letters[idx]
-		if i == 0 && '0' == char {
-			continue
-		}
 		s = append(s, char)
 		i++
 	}

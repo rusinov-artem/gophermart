@@ -133,6 +133,11 @@ func (s *LoginTestSuite) Test_LoginSuccess() {
 	s.Equal(s.generator.token, token)
 }
 
+func (s *LoginTestSuite) Test_Err() {
+	err := &UserNotFoundErr{}
+	s.NotEmpty(err.Error())
+}
+
 type storage struct {
 	findUserErr   error
 	loginToSearch string
