@@ -11,6 +11,7 @@ type Handler interface {
 	AddOrder(http.ResponseWriter, *http.Request)
 	ListOrders(http.ResponseWriter, *http.Request)
 	GetBalance(http.ResponseWriter, *http.Request)
+	Withdraw(http.ResponseWriter, *http.Request)
 }
 
 type Mux interface {
@@ -58,6 +59,10 @@ func (r *Router) RegisterGetBalance(h http.HandlerFunc) {
 	r.mux.Method(http.MethodGet, "/api/user/balance", h)
 }
 
+func (r *Router) RegisterWithdraw(h http.HandlerFunc) {
+	r.mux.Method(http.MethodPost, "/api/balance/withdraw", h)
+}
+
 func (r *Router) SetHandler(h Handler) *Router {
 	r.RegisterLiveness(h.Liveness)
 	r.RegisterRegister(h.Register)
@@ -65,5 +70,6 @@ func (r *Router) SetHandler(h Handler) *Router {
 	r.RegisterAddOrder(h.AddOrder)
 	r.RegisterListOrders(h.ListOrders)
 	r.RegisterGetBalance(h.GetBalance)
+	r.RegisterWithdraw(h.Withdraw)
 	return r
 }

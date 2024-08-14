@@ -201,6 +201,32 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 		require.NoError(t, finder.Wait(time.Second))
 	})
+
+	s.T().Run("user can withdraw", func(t *testing.T) {
+		finder := writer.NewFinder("/api/balance/withdraw")
+		server.proxy.SetWriter(finder)
+
+		url := fmt.Sprintf("http://%s/api/balance/withdraw", address)
+		req, err := http.NewRequest(
+			http.MethodPost,
+			url,
+			nil,
+		)
+
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", authToken)
+
+		client := http.DefaultClient
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		defer func() { _ = resp.Body.Close() }()
+		fmt.Println("BODY => ", resp.Body)
+
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+		require.NoError(t, finder.Wait(time.Second))
+	})
 }
 
 func (s *ServerTestsuite) Test_LogErrorIfUnableToBind() {
