@@ -22,6 +22,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/service/accrual"
 	"github.com/rusinov-artem/gophermart/app/service/accrual/client"
 	"github.com/rusinov-artem/gophermart/app/service/auth"
+	"github.com/rusinov-artem/gophermart/app/service/order"
 	"github.com/rusinov-artem/gophermart/app/storage"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
@@ -110,12 +111,13 @@ var BuildServer = func(cfg *config.Config) Server {
 	}
 
 	handler.ListOrdersAction = func(ctx context.Context) appHandler.ListOrdersAction {
-		s := storage.NewRegistrationStorage(ctx, dbpool)
+		storage := storage.NewRegistrationStorage(ctx, dbpool)
 
-		c := client.New(ctx, cfg.AccrualSystemAddress)
-		a := accrual.NewService(c, s, logger)
+		accrualClient := client.New(ctx, cfg.AccrualSystemAddress)
+		accrualService := accrual.NewService(accrualClient, storage, logger)
+		orderService := order.NewOrderService(logger, storage, accrualService)
 
-		action := list.New(s, a, logger)
+		action := list.New(orderService)
 
 		return action
 	}

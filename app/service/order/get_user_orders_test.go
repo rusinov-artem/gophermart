@@ -1,4 +1,4 @@
-package list
+package order
 
 import (
 	"bytes"
@@ -14,31 +14,31 @@ import (
 	"github.com/rusinov-artem/gophermart/test/utils/logger"
 )
 
-type ListOrderActionTestSuite struct {
+type OrderServiceTestSuite struct {
 	suite.Suite
-	action  *Action
-	storage *storage
 	logger  *zap.Logger
 	logs    *bytes.Buffer
 	accrual *accrual
+	storage *storage
+	action  *Service
 }
 
-func Test_ListOrderAction(t *testing.T) {
-	suite.Run(t, &ListOrderActionTestSuite{})
+func Test_OrderService(t *testing.T) {
+	suite.Run(t, &OrderServiceTestSuite{})
 }
 
-func (s *ListOrderActionTestSuite) SetupTest() {
+func (s *OrderServiceTestSuite) SetupTest() {
 	s.logger, s.logs = logger.SpyLogger()
 	s.accrual = &accrual{}
 	s.storage = &storage{}
-	s.action = New(s.storage, s.accrual, s.logger)
+	s.action = NewOrderService(s.logger, s.storage, s.accrual)
 }
 
-func (s *ListOrderActionTestSuite) Test_UnableToFetchOrdersFromDB() {
+func (s *OrderServiceTestSuite) Test_UnableToFetchOrdersFromDB() {
 	login := "login"
-	s.storage.listOrdersErr = fmt.Errorf("db error")
+	s.storage.GetUserOrdersErr = fmt.Errorf("db error")
 
-	_, err := s.action.ListOrders(login)
+	_, err := s.action.GetUserOrders(login)
 	s.NotNil(err)
 	s.Equal(appError.ServiceUnavailable, err.Code)
 	s.Equal(login, s.storage.login)
@@ -46,17 +46,17 @@ func (s *ListOrderActionTestSuite) Test_UnableToFetchOrdersFromDB() {
 	s.Contains(s.logs.String(), "db error")
 }
 
-func (s *ListOrderActionTestSuite) Test_UserDoesNotHaveOrders() {
+func (s *OrderServiceTestSuite) Test_UserDoesNotHaveOrders() {
 	login := "login"
 
-	orders, err := s.action.ListOrders(login)
+	orders, err := s.action.GetUserOrders(login)
 	s.NotNil(err)
 	s.Equal(appError.NoOrdersFound, err.Code)
 	s.Equal(0, len(orders))
 	s.Equal(login, s.storage.login)
 }
 
-func (s *ListOrderActionTestSuite) Test_UnableToFetchAccrual() {
+func (s *OrderServiceTestSuite) Test_UnableToFetchAccrual() {
 	login := "login"
 
 	s.storage.foundOrders = []dto.OrderListItem{
@@ -75,7 +75,7 @@ func (s *ListOrderActionTestSuite) Test_UnableToFetchAccrual() {
 
 	s.accrual.fetchOrdersErr = fmt.Errorf("accrual error")
 
-	_, err := s.action.ListOrders(login)
+	_, err := s.action.GetUserOrders(login)
 
 	s.NotNil(err)
 	s.Equal(appError.ServiceUnavailable, err.Code)
@@ -84,7 +84,7 @@ func (s *ListOrderActionTestSuite) Test_UnableToFetchAccrual() {
 	s.Contains(s.logs.String(), "accrual error")
 }
 
-func (s *ListOrderActionTestSuite) Test_Success() {
+func (s *OrderServiceTestSuite) Test_Success() {
 	login := "login"
 
 	s.storage.foundOrders = []dto.OrderListItem{
@@ -101,7 +101,7 @@ func (s *ListOrderActionTestSuite) Test_Success() {
 		},
 	}
 
-	_, err := s.action.ListOrders(login)
+	_, err := s.action.GetUserOrders(login)
 
 	s.Nil(err)
 	s.Equal(login, s.storage.login)
@@ -109,14 +109,14 @@ func (s *ListOrderActionTestSuite) Test_Success() {
 }
 
 type storage struct {
-	login         string
-	listOrdersErr error
-	foundOrders   []dto.OrderListItem
+	login            string
+	GetUserOrdersErr error
+	foundOrders      []dto.OrderListItem
 }
 
 func (s *storage) ListOrders(login string) ([]dto.OrderListItem, error) {
 	s.login = login
-	return s.foundOrders, s.listOrdersErr
+	return s.foundOrders, s.GetUserOrdersErr
 }
 
 type accrual struct {
