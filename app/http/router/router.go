@@ -10,6 +10,7 @@ type Handler interface {
 	Login(http.ResponseWriter, *http.Request)
 	AddOrder(http.ResponseWriter, *http.Request)
 	ListOrders(http.ResponseWriter, *http.Request)
+	GetBalance(http.ResponseWriter, *http.Request)
 }
 
 type Mux interface {
@@ -53,11 +54,16 @@ func (r *Router) RegisterListOrders(h http.HandlerFunc) {
 	r.mux.Method(http.MethodGet, "/api/user/orders", h)
 }
 
+func (r *Router) RegisterGetBalance(h http.HandlerFunc) {
+	r.mux.Method(http.MethodGet, "/api/user/balance", h)
+}
+
 func (r *Router) SetHandler(h Handler) *Router {
 	r.RegisterLiveness(h.Liveness)
 	r.RegisterRegister(h.Register)
 	r.RegisterLogin(h.Login)
 	r.RegisterAddOrder(h.AddOrder)
 	r.RegisterListOrders(h.ListOrders)
+	r.RegisterGetBalance(h.GetBalance)
 	return r
 }

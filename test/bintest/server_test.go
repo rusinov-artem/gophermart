@@ -175,6 +175,32 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 		require.NoError(t, finder.Wait(time.Second))
 	})
+
+	s.T().Run("user can check balance", func(t *testing.T) {
+		finder := writer.NewFinder("/api/user/balance")
+		server.proxy.SetWriter(finder)
+
+		url := fmt.Sprintf("http://%s/api/user/balance", address)
+		req, err := http.NewRequest(
+			http.MethodGet,
+			url,
+			nil,
+		)
+
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "text/plain")
+		req.Header.Set("Authorization", authToken)
+
+		client := http.DefaultClient
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		defer func() { _ = resp.Body.Close() }()
+		fmt.Println("BODY => ", resp.Body)
+
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+		require.NoError(t, finder.Wait(time.Second))
+	})
 }
 
 func (s *ServerTestsuite) Test_LogErrorIfUnableToBind() {
