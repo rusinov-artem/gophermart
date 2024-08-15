@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/rusinov-artem/gophermart/app/action/balance/get"
+	"github.com/rusinov-artem/gophermart/app/action/balance/withdraw"
 	"github.com/rusinov-artem/gophermart/app/action/login"
 	"github.com/rusinov-artem/gophermart/app/action/order/add"
 	"github.com/rusinov-artem/gophermart/app/action/order/list"
@@ -24,6 +25,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/service/accrual/client"
 	"github.com/rusinov-artem/gophermart/app/service/auth"
 	"github.com/rusinov-artem/gophermart/app/service/order"
+	withdrawService "github.com/rusinov-artem/gophermart/app/service/withdraw"
 	"github.com/rusinov-artem/gophermart/app/storage"
 	"github.com/rusinov-artem/gophermart/cmd/gophermart/config"
 )
@@ -105,10 +107,7 @@ var BuildServer = func(cfg *config.Config) Server {
 
 	handler.AddOrderAction = func(ctx context.Context) appHandler.AddOrderAction {
 		s := storage.NewRegistrationStorage(ctx, dbpool)
-
-		action := add.New(s, logger)
-
-		return action
+		return add.New(s, logger)
 	}
 
 	handler.ListOrdersAction = func(ctx context.Context) appHandler.ListOrdersAction {
@@ -118,9 +117,7 @@ var BuildServer = func(cfg *config.Config) Server {
 		accrualService := accrual.NewService(accrualClient, storage, logger)
 		orderService := order.NewOrderService(logger, storage, accrualService)
 
-		action := list.New(orderService)
-
-		return action
+		return list.New(orderService)
 	}
 
 	handler.GetBalanceAction = func(ctx context.Context) appHandler.GetBalanceAction {
@@ -130,8 +127,22 @@ var BuildServer = func(cfg *config.Config) Server {
 		accrualService := accrual.NewService(accrualClient, storage, logger)
 		orderService := order.NewOrderService(logger, storage, accrualService)
 
-		action := get.New(orderService)
-		return action
+		return get.New(orderService)
+	}
+
+	handler.WithdrawAction = func(ctx context.Context) appHandler.WithdrawAction {
+		s := storage.NewRegistrationStorage(ctx, dbpool)
+		accrualClient := client.New(ctx, cfg.AccrualSystemAddress)
+		accrualService := accrual.NewService(accrualClient, s, logger)
+		orderService := order.NewOrderService(logger, s, accrualService)
+
+		txFactory := func(login string) withdrawService.Transaction {
+			return storage.NewWithdrawTx(ctx, dbpool, login)
+		}
+
+		withdrawService := withdrawService.NewWithdrawService(txFactory, logger)
+
+		return withdraw.New(orderService, withdrawService)
 	}
 
 	router := appRouter.New(c).SetHandler(handler)

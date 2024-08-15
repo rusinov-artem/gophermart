@@ -211,15 +211,14 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	})
 
 	s.T().Run("user can withdraw", func(t *testing.T) {
-		t.Skip("broken")
 		finder := writer.NewFinder("/api/user/balance/withdraw")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/balance/withdraw", address)
+		url := fmt.Sprintf("http://%s/api/user/balance/withdraw", address)
 		req, err := http.NewRequest(
 			http.MethodPost,
 			url,
-			nil,
+			bytes.NewBufferString(fmt.Sprintf(`{"number":"%s", "sum": 0 }`, order.OrderNr())),
 		)
 
 		require.NoError(t, err)

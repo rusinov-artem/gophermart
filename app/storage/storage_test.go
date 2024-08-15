@@ -173,12 +173,17 @@ func (f *fakePool) SendBatch(_ context.Context, _ *pgx.Batch) pgx.BatchResults {
 	return f.batchRes
 }
 
+func (f *fakePool) Begin(_ context.Context) (pgx.Tx, error) {
+	return nil, nil
+}
+
 type spyRows struct {
 	IsClosed bool
 	err      error
 
 	tag     pgconn.CommandTag
 	scanErr error
+	noNext  bool
 }
 
 func (s *spyRows) Close() {
@@ -198,7 +203,7 @@ func (s *spyRows) FieldDescriptions() []pgconn.FieldDescription {
 }
 
 func (s *spyRows) Next() bool {
-	return true
+	return !s.noNext
 }
 
 func (s *spyRows) Scan(_ ...any) error {
@@ -238,4 +243,63 @@ func (s *spyBatchRes) QueryRow() pgx.Row {
 func (s *spyBatchRes) Close() error {
 	s.IsClosed = true
 	return nil
+}
+
+type spyTx struct {
+	rows     *spyRows
+	queryErr error
+}
+
+func (s *spyTx) Begin(ctx context.Context) (pgx.Tx, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) Commit(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) Rollback(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) CopyFrom(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) LargeObjects() pgx.LargeObjects {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) Query(_ context.Context, _ string, _ ...any) (pgx.Rows, error) {
+	return s.rows, s.queryErr
+}
+
+func (s *spyTx) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *spyTx) Conn() *pgx.Conn {
+	//TODO implement me
+	panic("implement me")
 }
