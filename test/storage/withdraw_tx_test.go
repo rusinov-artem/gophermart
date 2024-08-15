@@ -90,6 +90,14 @@ func (s *WithdrawTransactionTestSuite) Test_CanWithdraw() {
 	s.Equal(s.orderNr, withdrawals[0].OrderNr)
 	s.InDelta(sum, withdrawals[0].Sum, 0.0001)
 	s.NotEmpty(withdrawals[0].ProcessedAt)
+
+	withdrawn, err := s.storage.Withdrawn(s.login)
+	s.NoError(err)
+	s.InDelta(sum, withdrawn, 0.0001)
+
+	balance, err := s.storage.Balance(s.login)
+	s.NoError(err)
+	s.InDelta(s.initialPoints-sum, balance, 0.0001)
 }
 
 func (s *WithdrawTransactionTestSuite) Test_CanBlock() {

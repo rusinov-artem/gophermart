@@ -10,6 +10,10 @@ type querier interface {
 	Query(_ context.Context, _ string, _ ...any) (pgx.Rows, error)
 }
 
+func (r *RegistrationStorage) Balance(login string) (float32, error) {
+	return getBalance(r.ctx, r.pool, login)
+}
+
 func getBalance(ctx context.Context, q querier, login string) (float32, error) {
 	sqlStr := `
 	SELECT 

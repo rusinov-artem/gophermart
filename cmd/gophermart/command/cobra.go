@@ -128,7 +128,7 @@ var BuildServer = func(cfg *config.Config) Server {
 		accrualService := accrual.NewService(accrualClient, storage, logger)
 		orderService := order.NewOrderService(logger, storage, accrualService)
 
-		return get.New(orderService)
+		return get.New(orderService, storage, logger)
 	}
 
 	handler.WithdrawAction = func(ctx context.Context) appHandler.WithdrawAction {

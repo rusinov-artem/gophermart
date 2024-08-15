@@ -169,6 +169,25 @@ func (s *StorageTestSuite) Test_GetWithdrawals_RowsClosed() {
 	s.True(rows.IsClosed)
 }
 
+func (s *StorageTestSuite) Test_Withdrawn_QueryError() {
+	s.pool.queryErr = fmt.Errorf("database error")
+	_, err := s.storage.Withdrawn("")
+	s.ErrorContains(err, "unable to get withdrawn")
+}
+
+func (s *StorageTestSuite) Test_Withdrawn_RowsClosed() {
+	rows := &spyRows{
+		tag:     pgconn.CommandTag{},
+		scanErr: fmt.Errorf("unable to scan"),
+		noNext:  true,
+	}
+
+	s.pool.rows = rows
+
+	_, _ = s.storage.Withdrawn("")
+	s.True(rows.IsClosed)
+}
+
 type fakePool struct {
 	execErr error
 	tag     pgconn.CommandTag
