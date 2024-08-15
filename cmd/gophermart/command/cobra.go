@@ -14,6 +14,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/action/order/add"
 	"github.com/rusinov-artem/gophermart/app/action/order/list"
 	"github.com/rusinov-artem/gophermart/app/action/register"
+	getWithdrawalsAction "github.com/rusinov-artem/gophermart/app/action/withdraw/get"
 	"github.com/rusinov-artem/gophermart/app/action/withdraw/process"
 	"github.com/rusinov-artem/gophermart/app/crypto"
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
@@ -143,6 +144,12 @@ var BuildServer = func(cfg *config.Config) Server {
 		withdrawService := withdrawService.NewWithdrawService(txFactory, logger)
 
 		return process.New(orderService, withdrawService)
+	}
+
+	handler.GetWithdrawalsAction = func(ctx context.Context) appHandler.GetWithdrawalsAction {
+		s := storage.NewRegistrationStorage(ctx, dbpool)
+
+		return getWithdrawalsAction.New(logger, s)
 	}
 
 	router := appRouter.New(c).SetHandler(handler)

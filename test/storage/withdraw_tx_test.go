@@ -85,6 +85,7 @@ func (s *WithdrawTransactionTestSuite) Test_CanWithdraw() {
 	s.Require().NoError(s.tx.Commit())
 
 	withdrawals, err = s.storage.GetWithdrawals(s.login)
+	s.NoError(err)
 	s.Len(withdrawals, 1)
 	s.Equal(s.orderNr, withdrawals[0].OrderNr)
 	s.InDelta(sum, withdrawals[0].Sum, 0.0001)
