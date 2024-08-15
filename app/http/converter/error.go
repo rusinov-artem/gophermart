@@ -6,7 +6,7 @@ import (
 	appError "github.com/rusinov-artem/gophermart/app/error"
 )
 
-func ConvertError(w http.ResponseWriter, err error) {
+func ConvertError(w http.ResponseWriter, err interface{}) {
 	switch e := err.(type) {
 	case *appError.InternalError:
 		if e.Code == appError.LoginAlreadyInUse {
@@ -37,6 +37,12 @@ func ConvertError(w http.ResponseWriter, err error) {
 
 		if e.Code == appError.NoOrdersFound {
 			w.WriteHeader(http.StatusNoContent)
+
+			return
+		}
+
+		if e.Code == appError.NotEnoughPoints {
+			w.WriteHeader(http.StatusPaymentRequired)
 
 			return
 		}

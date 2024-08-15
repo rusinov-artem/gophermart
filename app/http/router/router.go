@@ -60,7 +60,7 @@ func (r *Router) RegisterGetBalance(h http.HandlerFunc) {
 }
 
 func (r *Router) RegisterWithdraw(h http.HandlerFunc) {
-	r.mux.Method(http.MethodPost, "/api/balance/withdraw", h)
+	r.mux.Method(http.MethodPost, "/api/user/balance/withdraw", h)
 }
 
 func (r *Router) SetHandler(h Handler) *Router {

@@ -12,4 +12,5 @@ var (
 	OrderNrExists            Code = 7
 	BadOrderOwnership        Code = 8
 	NoOrdersFound            Code = 9
+	NotEnoughPoints          Code = 10
 )

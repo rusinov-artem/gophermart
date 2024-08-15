@@ -50,3 +50,9 @@ type Balance struct {
 	Current   float32
 	Withdrawn float32
 }
+
+type WithdrawParams struct {
+	Login   string
+	OrderNr string
+	Sum     float32
+}

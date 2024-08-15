@@ -2,7 +2,6 @@ package add
 
 import (
 	"errors"
-	"regexp"
 
 	"go.uber.org/zap"
 
@@ -17,15 +16,13 @@ type Storage interface {
 }
 
 type Action struct {
-	rule    *regexp.Regexp
 	storage Storage
 	logger  *zap.Logger
 }
 
 func New(storage Storage, logger *zap.Logger) *Action {
-	rule, _ := regexp.Compile(`^\d+$`)
 	return &Action{
-		rule:    rule,
+
 		storage: storage,
 		logger:  logger,
 	}

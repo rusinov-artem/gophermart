@@ -3,6 +3,7 @@ package order
 import (
 	"fmt"
 	"math/rand"
+	"regexp"
 	"strconv"
 )
 
@@ -62,4 +63,26 @@ func DigitString(minLen, maxLen int) string {
 	}
 
 	return string(s)
+}
+
+var rule, _ = regexp.Compile(`^\d+$`)
+
+func ValidateOrderNr(orderNr string) error {
+	if orderNr == "" {
+		return fmt.Errorf("empty order")
+	}
+
+	if !rule.Match([]byte(orderNr)) {
+		return fmt.Errorf("orderNr has invalid format")
+	}
+
+	v := LuhnCheckDigit(orderNr[:len(orderNr)-1])
+	l := orderNr[len(orderNr)-1]
+	lv, _ := strconv.Atoi(string(l))
+
+	if v != lv {
+		return fmt.Errorf("invalid checksum")
+	}
+
+	return nil
 }
