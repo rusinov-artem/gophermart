@@ -3,6 +3,7 @@ package bintest
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os/exec"
@@ -244,7 +245,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		req, err := http.NewRequest(
 			http.MethodGet,
 			url,
-			bytes.NewBufferString(fmt.Sprintf(`{"number":"%s", "sum": 0 }`, order.OrderNr())),
+			bytes.NewBufferString(fmt.Sprintf(`{"order":"%s", "sum": 0 }`, order.OrderNr())),
 		)
 
 		require.NoError(t, err)
@@ -255,7 +256,8 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		resp, err := client.Do(req)
 		require.NoError(t, err)
 		defer func() { _ = resp.Body.Close() }()
-		fmt.Println("BODY => ", resp.Body)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("BODY => ", string(body))
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))

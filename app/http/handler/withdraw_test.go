@@ -116,7 +116,7 @@ func (s *WithdrawHandlerTestSuite) Test_Success() {
 }
 
 func (s *WithdrawHandlerTestSuite) validReq(orderNr string, sum float32) *http.Request {
-	return s.req(fmt.Sprintf(`{"number":"%s", "sum":%f}`, orderNr, sum))
+	return s.req(fmt.Sprintf(`{"order":"%s", "sum":%f}`, orderNr, sum))
 }
 
 func (s *WithdrawHandlerTestSuite) req(body string) *http.Request {

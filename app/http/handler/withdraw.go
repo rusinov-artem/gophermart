@@ -14,7 +14,7 @@ type WithdrawAction interface {
 }
 
 type withdrawJSON struct {
-	OrderNr string  `json:"number"`
+	OrderNr string  `json:"order"`
 	Sum     float32 `json:"sum"`
 }
 
