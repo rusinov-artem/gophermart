@@ -10,10 +10,11 @@ type Handler struct {
 	LoginAction    func(ctx context.Context) LoginAction
 	AddOrderAction func(ctx context.Context) AddOrderAction
 
-	AuthService      func(ctx context.Context) AuthService
-	ListOrdersAction func(ctx context.Context) ListOrdersAction
-	GetBalanceAction func(ctx context.Context) GetBalanceAction
-	WithdrawAction   func(ctx context.Context) WithdrawAction
+	AuthService          func(ctx context.Context) AuthService
+	ListOrdersAction     func(ctx context.Context) ListOrdersAction
+	GetBalanceAction     func(ctx context.Context) GetBalanceAction
+	WithdrawAction       func(ctx context.Context) WithdrawAction
+	GetWithdrawalsAction func(ctx context.Context) GetWithdrawalsAction
 }
 
 func New() *Handler {

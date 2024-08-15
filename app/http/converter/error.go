@@ -47,6 +47,12 @@ func ConvertError(w http.ResponseWriter, err interface{}) {
 			return
 		}
 
+		if e.Code == appError.NoWithdrawals {
+			w.WriteHeader(http.StatusNoContent)
+
+			return
+		}
+
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write(NewInternalErrorConverter(e).Byte())
 

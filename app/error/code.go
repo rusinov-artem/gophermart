@@ -13,4 +13,5 @@ var (
 	BadOrderOwnership        Code = 8
 	NoOrdersFound            Code = 9
 	NotEnoughPoints          Code = 10
+	NoWithdrawals            Code = 11
 )

@@ -56,3 +56,9 @@ type WithdrawParams struct {
 	OrderNr string
 	Sum     float32
 }
+
+type Withdrawal struct {
+	OrderNr     string
+	Sum         float32
+	ProcessedAt time.Time
+}
