@@ -40,25 +40,7 @@ func (t *WithdrawTx) LockUser() error {
 }
 
 func (t *WithdrawTx) AvailablePoints() (float32, error) {
-	sqlStr := `
-	SELECT 
-    COALESCE((SELECT sum(accrual) FROM "order" WHERE login = $1 AND status = 'PROCESSED'), 0) -
-    COALESCE((SELECT sum(withdraw.sum)   FROM "withdraw" WHERE login = $2), 0) as balance`
-
-	rows, err := t.tx.Query(t.ctx, sqlStr, t.login, t.login)
-	if err != nil {
-		return 0, err
-	}
-
-	defer rows.Close()
-	if !rows.Next() {
-		return 0, err
-	}
-
-	var available float32
-	err = rows.Scan(&available)
-
-	return available, err
+	return getBalance(t.ctx, t.tx, t.login)
 }
 
 func (t *WithdrawTx) Withdraw(orderNr string, amount float32) error {
