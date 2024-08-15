@@ -1,4 +1,4 @@
-package withdraw
+package process
 
 import (
 	"fmt"

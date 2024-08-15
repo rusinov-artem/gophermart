@@ -1,4 +1,4 @@
-package withdraw
+package process
 
 import (
 	"github.com/rusinov-artem/gophermart/app/dto"

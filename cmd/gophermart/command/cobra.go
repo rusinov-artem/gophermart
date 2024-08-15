@@ -10,11 +10,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/rusinov-artem/gophermart/app/action/balance/get"
-	"github.com/rusinov-artem/gophermart/app/action/balance/withdraw"
 	"github.com/rusinov-artem/gophermart/app/action/login"
 	"github.com/rusinov-artem/gophermart/app/action/order/add"
 	"github.com/rusinov-artem/gophermart/app/action/order/list"
 	"github.com/rusinov-artem/gophermart/app/action/register"
+	"github.com/rusinov-artem/gophermart/app/action/withdraw/process"
 	"github.com/rusinov-artem/gophermart/app/crypto"
 	appHttp "github.com/rusinov-artem/gophermart/app/http"
 	appHandler "github.com/rusinov-artem/gophermart/app/http/handler"
@@ -142,7 +142,7 @@ var BuildServer = func(cfg *config.Config) Server {
 
 		withdrawService := withdrawService.NewWithdrawService(txFactory, logger)
 
-		return withdraw.New(orderService, withdrawService)
+		return process.New(orderService, withdrawService)
 	}
 
 	router := appRouter.New(c).SetHandler(handler)
