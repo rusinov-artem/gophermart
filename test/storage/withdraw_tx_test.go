@@ -67,6 +67,10 @@ func (s *WithdrawTransactionTestSuite) TearDownTest() {
 }
 
 func (s *WithdrawTransactionTestSuite) Test_CanWithdraw() {
+	withdrawals, err := s.storage.GetWithdrawals(s.login)
+	s.Len(withdrawals, 0)
+	s.NoError(err)
+
 	s.Require().NoError(s.tx.Begin())
 	defer s.tx.Rollback()
 
@@ -76,8 +80,15 @@ func (s *WithdrawTransactionTestSuite) Test_CanWithdraw() {
 	s.Require().NoError(err)
 	s.InDelta(s.initialPoints, available, 0.000001)
 
-	s.Require().NoError(s.tx.Withdraw(s.orderNr, 100))
+	sum := float32(100)
+	s.Require().NoError(s.tx.Withdraw(s.orderNr, sum))
 	s.Require().NoError(s.tx.Commit())
+
+	withdrawals, err = s.storage.GetWithdrawals(s.login)
+	s.Len(withdrawals, 1)
+	s.Equal(s.orderNr, withdrawals[0].OrderNr)
+	s.InDelta(sum, withdrawals[0].Sum, 0.0001)
+	s.NotEmpty(withdrawals[0].ProcessedAt)
 }
 
 func (s *WithdrawTransactionTestSuite) Test_CanBlock() {

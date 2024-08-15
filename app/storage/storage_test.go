@@ -151,6 +151,24 @@ func (s *StorageTestSuite) Test_updateOrder_CloseBatch() {
 
 }
 
+func (s *StorageTestSuite) Test_GetWithdrawals_QueryError() {
+	s.pool.queryErr = fmt.Errorf("database error")
+	_, err := s.storage.GetWithdrawals("")
+	s.ErrorContains(err, "unable to get withdrawals")
+}
+
+func (s *StorageTestSuite) Test_GetWithdrawals_RowsClosed() {
+	rows := &spyRows{
+		tag:     pgconn.CommandTag{},
+		scanErr: fmt.Errorf("unable to scan"),
+	}
+
+	s.pool.rows = rows
+
+	_, _ = s.storage.GetWithdrawals("")
+	s.True(rows.IsClosed)
+}
+
 type fakePool struct {
 	execErr error
 	tag     pgconn.CommandTag
@@ -250,27 +268,27 @@ type spyTx struct {
 	queryErr error
 }
 
-func (s *spyTx) Begin(ctx context.Context) (pgx.Tx, error) {
+func (s *spyTx) Begin(_ context.Context) (pgx.Tx, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *spyTx) Commit(ctx context.Context) error {
+func (s *spyTx) Commit(_ context.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *spyTx) Rollback(ctx context.Context) error {
+func (s *spyTx) Rollback(_ context.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *spyTx) CopyFrom(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error) {
+func (s *spyTx) CopyFrom(_ context.Context, _ pgx.Identifier, _ []string, _ pgx.CopyFromSource) (int64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *spyTx) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
+func (s *spyTx) SendBatch(_ context.Context, _ *pgx.Batch) pgx.BatchResults {
 	//TODO implement me
 	panic("implement me")
 }
@@ -280,12 +298,12 @@ func (s *spyTx) LargeObjects() pgx.LargeObjects {
 	panic("implement me")
 }
 
-func (s *spyTx) Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error) {
+func (s *spyTx) Prepare(_ context.Context, _, _ string) (*pgconn.StatementDescription, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *spyTx) Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error) {
+func (s *spyTx) Exec(_ context.Context, _ string, _ ...any) (commandTag pgconn.CommandTag, err error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -294,7 +312,7 @@ func (s *spyTx) Query(_ context.Context, _ string, _ ...any) (pgx.Rows, error) {
 	return s.rows, s.queryErr
 }
 
-func (s *spyTx) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+func (s *spyTx) QueryRow(_ context.Context, _ string, _ ...any) pgx.Row {
 	//TODO implement me
 	panic("implement me")
 }
