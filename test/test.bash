@@ -5,6 +5,11 @@ export CGO_ENABLED=1
 export GOCOVERDIR=/app/test/bintest/coverdir
 rm ${GOCOVERDIR:?}/* -r
 
+APP_BIN=/app/tests/devtest/app/app
+if [ -f ${APP_BIN} ]; then
+  rm ${APP_BIN:?}
+fi
+
 echo "Compaling ..."
 go build -cover -o ./test/bintest/app ./cmd/gophermart
 R_VAL=$?
@@ -49,8 +54,13 @@ fi
 
 
 COVERAGE_DIR_LIST=$(find /app/test/bintest/coverdir/ -maxdepth 1 -type d | sort | tail -n +2 | tr "\n" "," | sed 's/,$/\n/')
-go tool covdata textfmt -i="${COVERAGE_DIR_LIST}"  -o bincoverage.out
-gocov-merger coverage.out bincoverage.out > merge.out
+if [[ ${COVERAGE_DIR_LIST} ]]; then
+  go tool covdata textfmt -i="${COVERAGE_DIR_LIST}"  -o bincoverage.out
+  gocov-merger coverage.out bincoverage.out > merge.out
+else
+  cp coverage.out merge.out
+fi
+
 sed -i '/\/gophermart\/test/d' merge.out
 go tool cover -html=merge.out -o coverage.html
 go-cover-treemap -coverprofile merge.out > coverage.svg
