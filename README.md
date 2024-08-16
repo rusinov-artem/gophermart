@@ -8,7 +8,7 @@
 самописные test doubles
 
 Разработку вел руководствуясь идеями из книги [growing object oriented software guided by tests](https://www.oreilly.com/library/view/growing-object-oriented-software/9780321574442/) 
-и примерами 
+и [видео](https://cleancoders.com/series/comparativeDesign)
 
 [Задание находится тут](SPECIFICATION.md)
 
