@@ -2,6 +2,7 @@ services:
   gophermart-app:
     container_name: gophermart-app
     image: rusinov/gophermart-app
+    command: "go run cmd/gophermart/main.go"
     depends_on:
       gophermart-db:
         condition: service_healthy
