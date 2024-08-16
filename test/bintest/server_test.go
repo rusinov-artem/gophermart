@@ -86,7 +86,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	defer s.stopServer(server)
 
 	authToken := ""
-	orderNr := order.OrderNr()
+	orderNr := order.Number()
 
 	s.T().Run("can register a user", func(t *testing.T) {
 		finder := writer.NewFinder("/api/user/register")
@@ -219,7 +219,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		req, err := http.NewRequest(
 			http.MethodPost,
 			url,
-			bytes.NewBufferString(fmt.Sprintf(`{"number":"%s", "sum": 0 }`, order.OrderNr())),
+			bytes.NewBufferString(fmt.Sprintf(`{"number":"%s", "sum": 0 }`, order.Number())),
 		)
 
 		require.NoError(t, err)
@@ -245,7 +245,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		req, err := http.NewRequest(
 			http.MethodGet,
 			url,
-			bytes.NewBufferString(fmt.Sprintf(`{"order":"%s", "sum": 0 }`, order.OrderNr())),
+			bytes.NewBufferString(fmt.Sprintf(`{"order":"%s", "sum": 0 }`, order.Number())),
 		)
 
 		require.NoError(t, err)

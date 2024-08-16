@@ -19,8 +19,8 @@ func (r *ResponseSpy) Header() http.Header {
 	return r.w.Header()
 }
 
-func (r *ResponseSpy) Write(bytes []byte) (int, error) {
-	return r.body.Write(bytes)
+func (r *ResponseSpy) Write(b []byte) (int, error) {
+	return r.body.Write(b)
 }
 
 func (r *ResponseSpy) WriteHeader(statusCode int) {

@@ -10,6 +10,8 @@ import (
 	"github.com/rusinov-artem/gophermart/app/http/converter"
 )
 
+const CookiesLifeTime = 3600
+
 type RegisterAction interface {
 	Validate(params dto.RegisterParams) *appError.ValidationError
 	Register(params dto.RegisterParams) (string, *appError.InternalError)
@@ -61,7 +63,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		Name:     "Authorization",
 		Value:    token,
 		Path:     "/",
-		MaxAge:   3600,
+		MaxAge:   CookiesLifeTime,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
@@ -70,5 +72,4 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 
 	w.WriteHeader(http.StatusOK)
-
 }

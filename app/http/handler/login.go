@@ -65,7 +65,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		Name:     "Authorization",
 		Value:    token,
 		Path:     "/",
-		MaxAge:   3600,
+		MaxAge:   CookiesLifeTime,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,

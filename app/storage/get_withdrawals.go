@@ -40,5 +40,4 @@ func (r *Storage) GetWithdrawals(login string) ([]dto.Withdrawal, error) {
 	}
 
 	return withdraws, nil
-
 }

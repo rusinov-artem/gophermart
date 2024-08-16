@@ -17,7 +17,7 @@ type ServerUnderTest struct {
 func NewServerUnderTest(name string, args ...string) *ServerUnderTest {
 	server := &ServerUnderTest{}
 
-	server.cmd = exec.Command("./app", args...)
+	server.cmd = exec.Command(name, args...)
 	server.proxy = writer.NewProxy()
 
 	server.cmd.Stdout = server.proxy

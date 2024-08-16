@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -15,27 +16,16 @@ type ListOrdersAction interface {
 }
 
 func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
-	ctx, cancelFN := h.Context(r.Context())
-	defer cancelFN()
+	h.auth(w, r, func(ctx context.Context, login string) {
+		w.Header().Set("Content-Type", "application/json")
+		orders, internalErr := h.ListOrdersAction(ctx).ListOrders(login)
+		if internalErr != nil {
+			converter.ConvertError(w, internalErr)
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-
-	auth := h.AuthService(ctx)
-	login, err := auth.Auth(getToken(r))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	action := h.ListOrdersAction(ctx)
-	orders, internalErr := action.ListOrders(login)
-	if internalErr != nil {
-		converter.ConvertError(w, internalErr)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(encodeOrderList(orders))
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(encodeOrderList(orders))
+	})
 }
 
 func encodeOrderList(orders []dto.OrderListItem) []byte {

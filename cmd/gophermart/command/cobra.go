@@ -61,7 +61,7 @@ func RootCmd() *cobra.Command {
 	cmd.PersistentFlags().StringP("database", "d", defaultDSN, "address to listen to")
 	cmd.PersistentFlags().StringP("accrual", "r", accrualAddress, "address to listen to")
 
-	cmd.Run = func(cmd *cobra.Command, args []string) {
+	cmd.Run = func(cmd *cobra.Command, _ []string) {
 		cfg := config.New().Load(cmd)
 		srv := BuildServer(cfg)
 		srv.Run()

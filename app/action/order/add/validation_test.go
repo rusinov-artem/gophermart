@@ -27,7 +27,7 @@ func (s *ValidationTestSuite) Test_EmptyOrderIsInvalid() {
 	s.assertInvalid("1 2")
 	s.assertInvalid("142")
 	s.assertValid("1030332363")
-	s.assertValid(order.OrderNr())
+	s.assertValid(order.Number())
 }
 
 func (s *ValidationTestSuite) assertValid(orderNr string) {

@@ -30,7 +30,7 @@ func New(ctx context.Context, address string) *Client {
 func (c *Client) GetSingleOrder(orderNr string) (dto.OrderListItem, error) {
 	order := dto.OrderListItem{}
 	url := fmt.Sprintf("%s/api/orders/%s", c.address, orderNr)
-	req, _ := http.NewRequestWithContext(c.ctx, http.MethodGet, url, nil)
+	req, _ := http.NewRequestWithContext(c.ctx, http.MethodGet, url, http.NoBody)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.client.Do(req)
 	if err != nil {

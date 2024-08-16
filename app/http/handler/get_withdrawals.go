@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -15,26 +16,16 @@ type GetWithdrawalsAction interface {
 }
 
 func (h *Handler) GetWithdrawals(w http.ResponseWriter, r *http.Request) {
-	ctx, closeFn := h.Context(r.Context())
-	defer closeFn()
-	w.Header().Set("Content-Type", "application/json")
+	h.auth(w, r, func(ctx context.Context, login string) {
+		w.Header().Set("Content-Type", "application/json")
+		withdrawals, internalErr := h.GetWithdrawalsAction(ctx).GetWithdrawals(login)
+		if internalErr != nil {
+			converter.ConvertError(w, internalErr)
+		}
 
-	auth := h.AuthService(ctx)
-	login, err := auth.Auth(getToken(r))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	action := h.GetWithdrawalsAction(ctx)
-	withdrawals, internalErr := action.GetWithdrawals(login)
-	if internalErr != nil {
-		converter.ConvertError(w, internalErr)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(encodeWithdrawals(withdrawals))
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(encodeWithdrawals(withdrawals))
+	})
 }
 
 func encodeWithdrawals(withdrawals []dto.Withdrawal) []byte {

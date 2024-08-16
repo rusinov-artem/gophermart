@@ -26,5 +26,4 @@ vendor/
 # coverage
 coverage.out
 coverage.html
-coverage.svg
 

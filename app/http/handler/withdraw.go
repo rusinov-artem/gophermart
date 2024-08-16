@@ -30,8 +30,8 @@ func (h *Handler) Withdraw(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//err = order.ValidateOrderNr(envelop.OrderNr)
-	//if err != nil {
+	// err = order.ValidateOrderNr(envelop.OrderNr)
+	// if err != nil {
 	//	w.WriteHeader(http.StatusUnprocessableEntity)
 	//	return
 	//}

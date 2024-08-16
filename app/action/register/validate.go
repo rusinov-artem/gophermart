@@ -5,6 +5,8 @@ import (
 	appError "github.com/rusinov-artem/gophermart/app/error"
 )
 
+const minPasswordLen = 6
+
 func (r *Register) Validate(params dto.RegisterParams) *appError.ValidationError {
 	fields := make(map[string][]string)
 
@@ -47,7 +49,7 @@ func (r *Register) validatePassword(password string) []string {
 		return errors
 	}
 
-	if len([]rune(password)) < 6 {
+	if len([]rune(password)) < minPasswordLen {
 		errors = append(errors, "password is too short")
 		return errors
 	}

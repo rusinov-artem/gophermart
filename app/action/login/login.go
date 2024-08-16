@@ -59,7 +59,7 @@ func (t *Login) Login(params dto.LoginParams) (string, *appError.InternalError) 
 		return "", &appError.InternalError{
 			InnerError: err,
 			Msg:        "service temporary unavailable",
-			Code:       6,
+			Code:       appError.ServiceUnavailable,
 		}
 	}
 

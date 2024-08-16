@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const defaultTimeout = 5 * time.Second
+
 type Handler struct {
 	RegisterAction func(ctx context.Context) RegisterAction
 	LoginAction    func(ctx context.Context) LoginAction
@@ -22,5 +24,5 @@ func New() *Handler {
 }
 
 func (h *Handler) Context(ctx context.Context) (context.Context, func()) {
-	return context.WithTimeout(ctx, 5*time.Second)
+	return context.WithTimeout(ctx, defaultTimeout)
 }

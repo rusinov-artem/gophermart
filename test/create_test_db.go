@@ -7,8 +7,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+//nolint:gosec // tests credentials
+const baseDSN = "postgres://gophermart:gophermart@gophermart-db:5432/%s"
+
 func CreateTestDB(dbName string) string {
-	defaultConnectionString := "postgres://gophermart:gophermart@gophermart-db:5432/postgres"
+	defaultConnectionString := fmt.Sprintf(baseDSN, "postgres")
 	owner := "gophermart"
 	template := "gophermart"
 
@@ -38,7 +41,7 @@ func CreateTestDB(dbName string) string {
 		panic(err)
 	}
 
-	return fmt.Sprintf("postgres://gophermart:gophermart@gophermart-db:5432/%s", dbName)
+	return fmt.Sprintf(baseDSN, dbName)
 }
 
 func dropConnections(dbName string) string {

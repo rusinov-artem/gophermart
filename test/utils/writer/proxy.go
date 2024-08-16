@@ -3,7 +3,6 @@ package writer
 import (
 	"io"
 	"sync"
-	"time"
 )
 
 type ProxyWriter struct {
@@ -27,11 +26,4 @@ func (t *ProxyWriter) SetWriter(w io.Writer) {
 	t.Lock()
 	defer t.Unlock()
 	t.w = w
-}
-
-func (t *ProxyWriter) WaitFor(substr string) bool {
-	finder := NewFinder(substr)
-	t.SetWriter(finder)
-	err := finder.Wait(5 * time.Second)
-	return err == nil
 }

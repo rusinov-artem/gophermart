@@ -56,7 +56,7 @@ func (s *WithdrawHandlerTestSuite) Test_UnableToUnmarshalBody() {
 func (s *WithdrawHandlerTestSuite) Test_UnauthorizedUser() {
 	s.auth.autErr = fmt.Errorf("unknown token")
 
-	orderNr := order.OrderNr()
+	orderNr := order.Number()
 	resp := s.do(s.validReq(orderNr, 42))
 
 	s.Equal(http.StatusUnauthorized, resp.Code)
@@ -72,7 +72,7 @@ func (s *WithdrawHandlerTestSuite) Test_UnableToWithdraw() {
 		Code:       appError.ServiceUnavailable,
 	}
 
-	orderNr := order.OrderNr()
+	orderNr := order.Number()
 	sum := float32(42.42)
 	resp := s.do(s.validReq(orderNr, sum))
 
@@ -91,7 +91,7 @@ func (s *WithdrawHandlerTestSuite) Test_NotEnoughPoints() {
 		Code: appError.NotEnoughPoints,
 	}
 
-	orderNr := order.OrderNr()
+	orderNr := order.Number()
 	sum := float32(42.42)
 	resp := s.do(s.validReq(orderNr, sum))
 
@@ -105,7 +105,7 @@ func (s *WithdrawHandlerTestSuite) Test_Success() {
 	login := "login"
 	s.auth.login = login
 
-	orderNr := order.OrderNr()
+	orderNr := order.Number()
 	sum := float32(42.42)
 	resp := s.do(s.validReq(orderNr, sum))
 

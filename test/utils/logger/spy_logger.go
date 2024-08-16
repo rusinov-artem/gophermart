@@ -13,7 +13,7 @@ import (
 func SpyLogger() (*zap.Logger, *bytes.Buffer) {
 	logger, _ := zap.NewDevelopment()
 	logBuffer := bytes.NewBufferString("")
-	logger = logger.WithOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+	logger = logger.WithOptions(zap.WrapCore(func(_ zapcore.Core) zapcore.Core {
 		return zapcore.NewCore(
 			zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()),
 			zapcore.AddSync(logBuffer),

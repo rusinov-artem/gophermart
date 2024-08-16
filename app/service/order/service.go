@@ -1,8 +1,6 @@
 package order
 
 import (
-	"context"
-
 	"go.uber.org/zap"
 
 	"github.com/rusinov-artem/gophermart/app/dto"
@@ -17,7 +15,6 @@ type Storage interface {
 }
 
 type Service struct {
-	ctx     context.Context
 	logger  *zap.Logger
 	storage Storage
 	accrual Accrual

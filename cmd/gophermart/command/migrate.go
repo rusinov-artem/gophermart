@@ -15,7 +15,7 @@ func migrate() *cobra.Command {
 		Use: "migrate",
 	}
 
-	cmd.Run = func(cmd *cobra.Command, args []string) {
+	cmd.Run = func(cmd *cobra.Command, _ []string) {
 		logger, _ := zap.NewProduction()
 		dsn, _ := cmd.Flags().GetString("database")
 		pool, err := pgxpool.New(context.Background(), dsn)
