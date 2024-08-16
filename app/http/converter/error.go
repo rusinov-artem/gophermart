@@ -9,58 +9,11 @@ import (
 func ConvertError(w http.ResponseWriter, err interface{}) {
 	switch e := err.(type) {
 	case *appError.InternalError:
-		if e.Code == appError.LoginAlreadyInUse {
-			w.WriteHeader(http.StatusConflict)
-			_, _ = w.Write(NewInternalErrorConverter(e).Byte())
-
-			return
-		}
-
-		if e.Code == appError.InvalidCredentials {
-			w.WriteHeader(http.StatusUnauthorized)
-			_, _ = w.Write(NewInternalErrorConverter(e).Byte())
-
-			return
-		}
-
-		if e.Code == appError.OrderNrExists {
-			w.WriteHeader(http.StatusOK)
-
-			return
-		}
-
-		if e.Code == appError.BadOrderOwnership {
-			w.WriteHeader(http.StatusConflict)
-
-			return
-		}
-
-		if e.Code == appError.NoOrdersFound {
-			w.WriteHeader(http.StatusNoContent)
-
-			return
-		}
-
-		if e.Code == appError.NotEnoughPoints {
-			w.WriteHeader(http.StatusPaymentRequired)
-
-			return
-		}
-
-		if e.Code == appError.NoWithdrawals {
-			w.WriteHeader(http.StatusNoContent)
-
-			return
-		}
-
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write(NewInternalErrorConverter(e).Byte())
-
+		NewInternalErrorConverter(e).Flush(w)
 		return
 	case *appError.ValidationError:
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write(NewValidationErrorConverter(e).Byte())
-
 		return
 	}
 }
