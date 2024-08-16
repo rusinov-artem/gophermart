@@ -17,7 +17,7 @@ type OrderStorageTestSuite struct {
 	suite.Suite
 	ctx     context.Context
 	pool    *pgxpool.Pool
-	storage *storage.RegistrationStorage
+	storage *storage.Storage
 }
 
 func Test_OrderStorate(t *testing.T) {
@@ -34,7 +34,7 @@ func (s *OrderStorageTestSuite) SetupSuite() {
 
 func (s *OrderStorageTestSuite) SetupTest() {
 	s.T().Parallel()
-	s.storage = storage.NewRegistrationStorage(s.ctx, s.pool)
+	s.storage = storage.NewStorage(s.ctx, s.pool)
 }
 
 func (s *OrderStorageTestSuite) Test_OrderNotFound() {

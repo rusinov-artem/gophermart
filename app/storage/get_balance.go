@@ -10,7 +10,7 @@ type querier interface {
 	Query(_ context.Context, _ string, _ ...any) (pgx.Rows, error)
 }
 
-func (r *RegistrationStorage) Balance(login string) (float32, error) {
+func (r *Storage) Balance(login string) (float32, error) {
 	return getBalance(r.ctx, r.pool, login)
 }
 

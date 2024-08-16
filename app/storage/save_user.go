@@ -6,7 +6,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/crypto"
 )
 
-func (r *RegistrationStorage) SaveUser(login, password string) error {
+func (r *Storage) SaveUser(login, password string) error {
 	sqlStr := `INSERT INTO "user" (login, password_hash) VALUES ($1, $2)`
 	_, err := r.pool.Exec(r.ctx, sqlStr, login, crypto.HashPassword(password))
 	if err != nil {

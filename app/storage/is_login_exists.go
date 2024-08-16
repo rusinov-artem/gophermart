@@ -2,7 +2,7 @@ package storage
 
 import "fmt"
 
-func (r *RegistrationStorage) IsLoginExists(login string) (bool, error) {
+func (r *Storage) IsLoginExists(login string) (bool, error) {
 	sqlStr := `SELECT login FROM "user" WHERE login = $1`
 	rows, err := r.pool.Query(r.ctx, sqlStr, login)
 	if err != nil {

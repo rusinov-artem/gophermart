@@ -2,7 +2,7 @@ package storage
 
 import "fmt"
 
-func (r *RegistrationStorage) FindToken(token string) (string, error) {
+func (r *Storage) FindToken(token string) (string, error) {
 	sqlStr := "SELECT login FROM auth_token WHERE token = $1"
 
 	rows, err := r.pool.Query(r.ctx, sqlStr, token)

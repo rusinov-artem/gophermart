@@ -15,7 +15,7 @@ import (
 type StorageTestSuite struct {
 	suite.Suite
 	ctx     context.Context
-	storage *RegistrationStorage
+	storage *Storage
 	pool    *fakePool
 }
 
@@ -25,7 +25,7 @@ func Test_Storage(t *testing.T) {
 
 func (s *StorageTestSuite) SetupTest() {
 	s.ctx = context.Background()
-	s.storage = NewRegistrationStorage(s.ctx, nil)
+	s.storage = NewStorage(s.ctx, nil)
 	s.pool = &fakePool{}
 	s.storage.pool = s.pool
 }

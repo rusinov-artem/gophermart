@@ -8,7 +8,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/dto"
 )
 
-func (r *RegistrationStorage) ListOrders(login string) ([]dto.OrderListItem, error) {
+func (r *Storage) ListOrders(login string) ([]dto.OrderListItem, error) {
 	sqlStr := `SELECT order_nr, status, accrual, upload_at
 				FROM "order" 
 				WHERE login = $1

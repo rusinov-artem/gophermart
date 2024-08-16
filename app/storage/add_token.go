@@ -2,7 +2,7 @@ package storage
 
 import "fmt"
 
-func (r *RegistrationStorage) AddToken(login, token string) error {
+func (r *Storage) AddToken(login, token string) error {
 	sqlStr := `INSERT INTO "auth_token" (login, token) VALUES ($1, $2)`
 
 	_, err := r.pool.Exec(r.ctx, sqlStr, login, token)

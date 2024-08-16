@@ -7,7 +7,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/dto"
 )
 
-func (r *RegistrationStorage) GetWithdrawals(login string) ([]dto.Withdrawal, error) {
+func (r *Storage) GetWithdrawals(login string) ([]dto.Withdrawal, error) {
 	sqlStr := `SELECT order_nr, sum, created_at FROM withdraw WHERE login = $1`
 
 	rows, err := r.pool.Query(r.ctx, sqlStr, login)

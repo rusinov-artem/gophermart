@@ -7,7 +7,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/dto"
 )
 
-func (r *RegistrationStorage) FindOrder(orderNr string) (dto.Order, error) {
+func (r *Storage) FindOrder(orderNr string) (dto.Order, error) {
 	var order dto.Order
 	sqlStr := `SELECT order_nr, login FROM "order" WHERE order_nr = $1`
 

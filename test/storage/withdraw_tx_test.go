@@ -20,7 +20,7 @@ type WithdrawTransactionTestSuite struct {
 	ctx           context.Context
 	pool          *pgxpool.Pool
 	tx            *storage.WithdrawTx
-	storage       *storage.RegistrationStorage
+	storage       *storage.Storage
 	login         string
 	initialPoints float32
 	tx2           *storage.WithdrawTx
@@ -48,7 +48,7 @@ func (s *WithdrawTransactionTestSuite) SetupTest() {
 	s.initialPoints = float32(30000)
 	s.tx = storage.NewWithdrawTx(s.ctx, s.pool, s.login)
 	s.tx2 = storage.NewWithdrawTx(s.ctx, s.pool, s.login)
-	s.storage = storage.NewRegistrationStorage(s.ctx, s.pool)
+	s.storage = storage.NewStorage(s.ctx, s.pool)
 	s.Require().NoError(s.storage.SaveUser(s.login, "password"))
 
 	s.Require().NoError(s.storage.AddOrder(s.login, s.orderNr))

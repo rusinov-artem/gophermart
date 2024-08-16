@@ -15,13 +15,13 @@ type pool interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
-type RegistrationStorage struct {
+type Storage struct {
 	pool pool
 	ctx  context.Context
 }
 
-func NewRegistrationStorage(ctx context.Context, pool *pgxpool.Pool) *RegistrationStorage {
-	return &RegistrationStorage{
+func NewStorage(ctx context.Context, pool *pgxpool.Pool) *Storage {
+	return &Storage{
 		pool: pool,
 		ctx:  ctx,
 	}

@@ -87,13 +87,13 @@ var BuildServer = func(cfg *config.Config) Server {
 	handler := appHandler.New()
 
 	handler.RegisterAction = func(ctx context.Context) appHandler.RegisterAction {
-		s := storage.NewRegistrationStorage(ctx, dbpool)
+		s := storage.NewStorage(ctx, dbpool)
 
 		return register.New(s, logger, crypto.NewTokenGenerator())
 	}
 
 	handler.LoginAction = func(ctx context.Context) appHandler.LoginAction {
-		s := storage.NewRegistrationStorage(ctx, dbpool)
+		s := storage.NewStorage(ctx, dbpool)
 
 		h := login.New(s, logger, crypto.NewTokenGenerator())
 		h.CheckPasswordHash = crypto.CheckPasswordHash
@@ -102,17 +102,17 @@ var BuildServer = func(cfg *config.Config) Server {
 	}
 
 	handler.AuthService = func(ctx context.Context) appHandler.AuthService {
-		s := storage.NewRegistrationStorage(ctx, dbpool)
+		s := storage.NewStorage(ctx, dbpool)
 		return auth.NewService(s)
 	}
 
 	handler.AddOrderAction = func(ctx context.Context) appHandler.AddOrderAction {
-		s := storage.NewRegistrationStorage(ctx, dbpool)
+		s := storage.NewStorage(ctx, dbpool)
 		return add.New(s, logger)
 	}
 
 	handler.ListOrdersAction = func(ctx context.Context) appHandler.ListOrdersAction {
-		storage := storage.NewRegistrationStorage(ctx, dbpool)
+		storage := storage.NewStorage(ctx, dbpool)
 
 		accrualClient := client.New(ctx, cfg.AccrualSystemAddress)
 		accrualService := accrual.NewService(accrualClient, storage, logger)
@@ -122,7 +122,7 @@ var BuildServer = func(cfg *config.Config) Server {
 	}
 
 	handler.GetBalanceAction = func(ctx context.Context) appHandler.GetBalanceAction {
-		storage := storage.NewRegistrationStorage(ctx, dbpool)
+		storage := storage.NewStorage(ctx, dbpool)
 
 		accrualClient := client.New(ctx, cfg.AccrualSystemAddress)
 		accrualService := accrual.NewService(accrualClient, storage, logger)
@@ -132,7 +132,7 @@ var BuildServer = func(cfg *config.Config) Server {
 	}
 
 	handler.WithdrawAction = func(ctx context.Context) appHandler.WithdrawAction {
-		s := storage.NewRegistrationStorage(ctx, dbpool)
+		s := storage.NewStorage(ctx, dbpool)
 		accrualClient := client.New(ctx, cfg.AccrualSystemAddress)
 		accrualService := accrual.NewService(accrualClient, s, logger)
 		orderService := order.NewOrderService(logger, s, accrualService)
@@ -147,7 +147,7 @@ var BuildServer = func(cfg *config.Config) Server {
 	}
 
 	handler.GetWithdrawalsAction = func(ctx context.Context) appHandler.GetWithdrawalsAction {
-		s := storage.NewRegistrationStorage(ctx, dbpool)
+		s := storage.NewStorage(ctx, dbpool)
 
 		return getWithdrawalsAction.New(logger, s)
 	}

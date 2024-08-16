@@ -7,7 +7,7 @@ import (
 	"github.com/rusinov-artem/gophermart/app/dto"
 )
 
-func (r *RegistrationStorage) FindUser(login string) (dto.User, error) {
+func (r *Storage) FindUser(login string) (dto.User, error) {
 	sqlStr := `
 	SELECT login, password_hash FROM "user" WHERE login = $1`
 

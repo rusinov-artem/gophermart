@@ -15,7 +15,7 @@ type RegistrationStorageTestSuite struct {
 	suite.Suite
 	pool    *pgxpool.Pool
 	ctx     context.Context
-	storage *storage.RegistrationStorage
+	storage *storage.Storage
 }
 
 func Test_RegistrationStorage(t *testing.T) {
@@ -32,7 +32,7 @@ func (s *RegistrationStorageTestSuite) SetupSuite() {
 
 func (s *RegistrationStorageTestSuite) SetupTest() {
 	s.T().Parallel()
-	s.storage = storage.NewRegistrationStorage(s.ctx, s.pool)
+	s.storage = storage.NewStorage(s.ctx, s.pool)
 }
 
 func (s *RegistrationStorageTestSuite) Test_CanSaveUser() {

@@ -49,7 +49,7 @@ func (s *RegistrationTestSuite) SetupTest() {
 	s.handler = handler.New()
 
 	s.handler.RegisterAction = func(ctx context.Context) handler.RegisterAction {
-		storage := appStorage.NewRegistrationStorage(ctx, s.pool)
+		storage := appStorage.NewStorage(ctx, s.pool)
 		generator := crypto.NewTokenGenerator()
 		return register.New(storage, s.logger, generator)
 	}
