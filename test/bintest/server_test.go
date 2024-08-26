@@ -27,6 +27,7 @@ type ServerTestsuite struct {
 	dsn       string
 	env       *utils.EnvManager
 	cleanEnvs func()
+	address   string
 }
 
 func Test_Server(t *testing.T) {
@@ -64,25 +65,19 @@ func (s *ServerTestsuite) stopServer(server *ServerUnderTest) {
 }
 
 func (s *ServerTestsuite) Test_CanStartServer() {
-	address := "127.0.0.1:8080"
-	server := s.startServer(address, s.dsn)
+	s.address = "127.0.0.1:8080"
+	server := s.startServer(s.address, s.dsn)
 	defer s.stopServer(server)
-	url := fmt.Sprintf("http://%s/liveness", address)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	s.Require().NoError(err)
 
-	client := http.DefaultClient
-
-	resp, err := client.Do(req)
-	s.Require().NoError(err)
+	resp := s.liveness()
 	defer func() { _ = resp.Body.Close() }()
 
 	s.Require().Equal(http.StatusOK, resp.StatusCode)
 }
 
 func (s *ServerTestsuite) Test_CanRegister() {
-	address := "127.0.0.1:8080"
-	server := s.startServer(address, s.dsn)
+	s.address = "127.0.0.1:8080"
+	server := s.startServer(s.address, s.dsn)
 	defer s.stopServer(server)
 
 	authToken := ""
@@ -92,18 +87,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		finder := writer.NewFinder("/api/user/register")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/user/register", address)
-		req, err := http.NewRequest(
-			http.MethodPost,
-			url,
-			bytes.NewBufferString(`{"login": "user1", "password": "password1"}`))
-		s.Require().NoError(err)
-		req.Header.Set("Content-Type", "application/json")
-
-		client := http.DefaultClient
-
-		resp, err := client.Do(req)
-		s.Require().NoError(err)
+		resp := s.register(`{"login": "user1", "password": "password1"}`)
 		defer func() { _ = resp.Body.Close() }()
 
 		s.Require().Equal(http.StatusOK, resp.StatusCode)
@@ -116,18 +100,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		finder := writer.NewFinder("/api/user/login")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/user/login", address)
-		req, err := http.NewRequest(
-			http.MethodPost,
-			url,
-			bytes.NewBufferString(`{"login": "user1", "password": "password1"}`))
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "application/json")
-
-		client := http.DefaultClient
-
-		resp, err := client.Do(req)
-		require.NoError(t, err)
+		resp := s.login(`{"login": "user1", "password": "password1"}`)
 		defer func() { _ = resp.Body.Close() }()
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -140,18 +113,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		finder := writer.NewFinder("/api/user/orders")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/user/orders", address)
-		req, err := http.NewRequest(
-			http.MethodPost,
-			url,
-			bytes.NewBufferString(orderNr))
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "text/plain")
-		req.Header.Set("Authorization", authToken)
-
-		client := http.DefaultClient
-		resp, err := client.Do(req)
-		require.NoError(t, err)
+		resp := s.addOrder(authToken, orderNr)
 		defer func() { _ = resp.Body.Close() }()
 
 		require.Equal(t, http.StatusAccepted, resp.StatusCode)
@@ -163,22 +125,12 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		finder := writer.NewFinder("/api/user/orders")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/user/orders", address)
-		req, err := http.NewRequest(
-			http.MethodGet,
-			url,
-			nil,
-		)
-
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "text/plain")
-		req.Header.Set("Authorization", authToken)
-
-		client := http.DefaultClient
-		resp, err := client.Do(req)
-		require.NoError(t, err)
+		resp := s.listOrders(authToken)
 		defer func() { _ = resp.Body.Close() }()
-		fmt.Println("BODY => ", resp.Body)
+
+		b, _ := io.ReadAll(resp.Body)
+		fmt.Println("BODY => ", string(b))
+		require.NotEmpty(t, b)
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
@@ -189,22 +141,12 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		finder := writer.NewFinder("/api/user/balance")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/user/balance", address)
-		req, err := http.NewRequest(
-			http.MethodGet,
-			url,
-			nil,
-		)
-
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "text/plain")
-		req.Header.Set("Authorization", authToken)
-
-		client := http.DefaultClient
-		resp, err := client.Do(req)
-		require.NoError(t, err)
+		resp := s.getBalance(authToken)
 		defer func() { _ = resp.Body.Close() }()
-		fmt.Println("BODY => ", resp.Body)
+
+		b, _ := io.ReadAll(resp.Body)
+		fmt.Println("BODY => ", string(b))
+		require.NotEmpty(t, b)
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
@@ -215,22 +157,12 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		finder := writer.NewFinder("/api/user/balance/withdraw")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/user/balance/withdraw", address)
-		req, err := http.NewRequest(
-			http.MethodPost,
-			url,
-			bytes.NewBufferString(fmt.Sprintf(`{"number":"%s", "sum": 0 }`, order.Number())),
-		)
-
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", authToken)
-
-		client := http.DefaultClient
-		resp, err := client.Do(req)
-		require.NoError(t, err)
+		resp := s.withdraw(authToken, fmt.Sprintf(`{"number":"%s", "sum": 0 }`, order.Number()))
 		defer func() { _ = resp.Body.Close() }()
-		fmt.Println("BODY => ", resp.Body)
+
+		b, _ := io.ReadAll(resp.Body)
+		fmt.Println("BODY => ", string(b))
+		require.Empty(t, b)
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
@@ -241,23 +173,12 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		finder := writer.NewFinder("/api/user/withdrawals")
 		server.proxy.SetWriter(finder)
 
-		url := fmt.Sprintf("http://%s/api/user/withdrawals", address)
-		req, err := http.NewRequest(
-			http.MethodGet,
-			url,
-			bytes.NewBufferString(fmt.Sprintf(`{"order":"%s", "sum": 0 }`, order.Number())),
-		)
-
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", authToken)
-
-		client := http.DefaultClient
-		resp, err := client.Do(req)
-		require.NoError(t, err)
+		resp := s.listWithdrawals(authToken)
 		defer func() { _ = resp.Body.Close() }()
-		body, _ := io.ReadAll(resp.Body)
-		fmt.Println("BODY => ", string(body))
+
+		b, _ := io.ReadAll(resp.Body)
+		fmt.Println("BODY => ", string(b))
+		require.NotEmpty(t, b)
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
@@ -339,4 +260,121 @@ func (s *ServerTestsuite) Test_ShutdownIn5Sec() {
 	err = finder2.Wait(6 * time.Second)
 	s.Require().NoError(err)
 	_ = cmd.Wait()
+}
+
+func (s *ServerTestsuite) url(path string) string {
+	return fmt.Sprintf("http://%s%s", s.address, path)
+}
+
+func (s *ServerTestsuite) liveness() *http.Response {
+	req, err := http.NewRequest(http.MethodGet, s.url("/liveness"), nil)
+	s.Require().NoError(err)
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	s.Require().NoError(err)
+	return resp
+}
+
+func (s *ServerTestsuite) register(json string) *http.Response {
+	req, err := http.NewRequest(
+		http.MethodPost,
+		s.url("/api/user/register"),
+		bytes.NewBufferString(json))
+	s.Require().NoError(err)
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := http.DefaultClient
+
+	resp, err := client.Do(req)
+	s.Require().NoError(err)
+	return resp
+}
+
+func (s *ServerTestsuite) login(json string) *http.Response {
+	req, err := http.NewRequest(
+		http.MethodPost,
+		s.url("/api/user/login"),
+		bytes.NewBufferString(json))
+	s.Require().NoError(err)
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := http.DefaultClient
+
+	resp, err := client.Do(req)
+	s.Require().NoError(err)
+	return resp
+}
+
+func (s *ServerTestsuite) addOrder(token, orderNr string) *http.Response {
+	req, err := http.NewRequest(
+		http.MethodPost,
+		s.url("/api/user/orders"),
+		bytes.NewBufferString(orderNr))
+	s.Require().NoError(err)
+
+	req.Header.Set("Content-Type", "text/plain")
+	req.Header.Set("Authorization", token)
+
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	s.Require().NoError(err)
+	return resp
+}
+
+func (s *ServerTestsuite) listOrders(token string) *http.Response {
+	req, err := http.NewRequest(http.MethodGet, s.url("/api/user/orders"), nil)
+	s.NoError(err)
+
+	req.Header.Set("Content-Type", "text/plain")
+	req.Header.Set("Authorization", token)
+
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	s.NoError(err)
+	return resp
+}
+
+func (s *ServerTestsuite) getBalance(token string) *http.Response {
+	req, err := http.NewRequest(http.MethodGet, s.url("/api/user/balance"), nil)
+	s.NoError(err)
+
+	req.Header.Set("Content-Type", "text/plain")
+	req.Header.Set("Authorization", token)
+
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	s.NoError(err)
+	return resp
+}
+
+func (s *ServerTestsuite) withdraw(token, json string) *http.Response {
+	req, err := http.NewRequest(
+		http.MethodPost,
+		s.url("/api/user/balance/withdraw"),
+		bytes.NewBufferString(json),
+	)
+	s.NoError(err)
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", token)
+
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	s.NoError(err)
+	return resp
+}
+
+func (s *ServerTestsuite) listWithdrawals(token string) *http.Response {
+	req, err := http.NewRequest(http.MethodGet, s.url("/api/user/withdrawals"), nil)
+	s.NoError(err)
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", token)
+
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	s.NoError(err)
+	return resp
 }
