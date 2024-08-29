@@ -1,0 +1,36 @@
+services:
+  gophermart-app:
+    container_name: gophermart-app
+    image: rusinov/gophermart-app
+    command: "go run cmd/gophermart/main.go"
+    depends_on:
+      gophermart-db:
+        condition: service_healthy
+    working_dir: /app
+    volumes:
+      - "./:/app"
+    env_file:
+      - .env
+    build:
+      dockerfile: Dockerfile
+
+  gophermart-db:
+    container_name: gophermart-db
+    image: postgres:16
+    volumes:
+      - data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h127.0.0.1 -Ugophermart" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=gophermart
+      - POSTGRES_USER=gophermart
+      - POSTGRES_DB=gophermart
+      - PGDATA=/var/lib/postgresql/data
+
+volumes:
+  data: { }
