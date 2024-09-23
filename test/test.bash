@@ -7,7 +7,6 @@ rm ${GOCOVERDIR:?}/* -r
 
 APP_BIN=/app/test/bintest/app
 if [ -f ${APP_BIN} ]; then
-  echo "app found and removed"
   rm ${APP_BIN:?}
 fi
 
