@@ -1,6 +1,7 @@
-FROM golang:1.22
+FROM golang:1.22.4
 
 RUN apt update ; apt install -y git make jq curl vim htop ncat iputils-ping net-tools;
+RUN git config --global --add safe.directory /app
 
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.57.2
 RUN go install github.com/go-delve/delve/cmd/dlv@latest &&\

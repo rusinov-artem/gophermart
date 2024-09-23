@@ -5,8 +5,9 @@ export CGO_ENABLED=1
 export GOCOVERDIR=/app/test/bintest/coverdir
 rm ${GOCOVERDIR:?}/* -r
 
-APP_BIN=/app/tests/devtest/app/app
+APP_BIN=/app/test/bintest/app
 if [ -f ${APP_BIN} ]; then
+  echo "app found and removed"
   rm ${APP_BIN:?}
 fi
 
