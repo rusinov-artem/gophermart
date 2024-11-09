@@ -44,7 +44,6 @@ func (s *LoginTestSuite) SetupTest() {
 	s.logs = logger.NewLogs(s.T(), logs)
 
 	s.handler = handler.New()
-
 }
 
 func (s *LoginTestSuite) req(body string) *http.Request {

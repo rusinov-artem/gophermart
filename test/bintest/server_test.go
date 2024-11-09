@@ -12,8 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/rusinov-artem/gophermart/app/action/order"
@@ -83,7 +81,7 @@ func (s *ServerTestsuite) Test_CanRegister() {
 	authToken := ""
 	orderNr := order.Number()
 
-	s.T().Run("can register a user", func(t *testing.T) {
+	s.Run("can register a user", func() {
 		finder := writer.NewFinder("/api/user/register")
 		server.proxy.SetWriter(finder)
 
@@ -91,21 +89,21 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		defer func() { _ = resp.Body.Close() }()
 
 		s.Require().Equal(http.StatusOK, resp.StatusCode)
-		assert.NotEmpty(t, resp.Header.Get("Authorization"))
+		s.NotEmpty(resp.Header.Get("Authorization"))
 		authToken = resp.Header.Get("Authorization")
 		s.NoError(finder.Wait(time.Second))
 	})
 
-	s.T().Run("registered user can login", func(t *testing.T) {
+	s.Run("registered user can login", func() {
 		finder := writer.NewFinder("/api/user/login")
 		server.proxy.SetWriter(finder)
 
 		resp := s.login(`{"login": "user1", "password": "password1"}`)
 		defer func() { _ = resp.Body.Close() }()
 
-		require.Equal(t, http.StatusOK, resp.StatusCode)
-		assert.NotEmpty(t, resp.Header.Get("Authorization"))
-		require.NoError(t, finder.Wait(time.Second))
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+		s.NotEmpty(resp.Header.Get("Authorization"))
+		s.Require().NoError(finder.Wait(time.Second))
 		fmt.Println(resp.Body)
 	})
 
@@ -116,12 +114,12 @@ func (s *ServerTestsuite) Test_CanRegister() {
 		resp := s.addOrder(authToken, orderNr)
 		defer func() { _ = resp.Body.Close() }()
 
-		require.Equal(t, http.StatusAccepted, resp.StatusCode)
-		require.NoError(t, finder.Wait(time.Second))
+		s.Require().Equal(http.StatusAccepted, resp.StatusCode)
+		s.Require().NoError(finder.Wait(time.Second))
 		fmt.Println(resp.Body)
 	})
 
-	s.T().Run("user can list orders", func(t *testing.T) {
+	s.Run("user can list orders", func() {
 		finder := writer.NewFinder("/api/user/orders")
 		server.proxy.SetWriter(finder)
 
@@ -130,14 +128,14 @@ func (s *ServerTestsuite) Test_CanRegister() {
 
 		b, _ := io.ReadAll(resp.Body)
 		fmt.Println("BODY => ", string(b))
-		require.NotEmpty(t, b)
+		s.Require().NotEmpty(b)
 
-		require.Equal(t, http.StatusOK, resp.StatusCode)
-		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-		require.NoError(t, finder.Wait(time.Second))
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+		s.Require().Equal("application/json", resp.Header.Get("Content-Type"))
+		s.Require().NoError(finder.Wait(time.Second))
 	})
 
-	s.T().Run("user can check balance", func(t *testing.T) {
+	s.Run("user can check balance", func() {
 		finder := writer.NewFinder("/api/user/balance")
 		server.proxy.SetWriter(finder)
 
@@ -146,14 +144,14 @@ func (s *ServerTestsuite) Test_CanRegister() {
 
 		b, _ := io.ReadAll(resp.Body)
 		fmt.Println("BODY => ", string(b))
-		require.NotEmpty(t, b)
+		s.Require().NotEmpty(b)
 
-		require.Equal(t, http.StatusOK, resp.StatusCode)
-		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-		require.NoError(t, finder.Wait(time.Second))
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+		s.Require().Equal("application/json", resp.Header.Get("Content-Type"))
+		s.Require().NoError(finder.Wait(time.Second))
 	})
 
-	s.T().Run("user can withdraw", func(t *testing.T) {
+	s.Run("user can withdraw", func() {
 		finder := writer.NewFinder("/api/user/balance/withdraw")
 		server.proxy.SetWriter(finder)
 
@@ -162,14 +160,14 @@ func (s *ServerTestsuite) Test_CanRegister() {
 
 		b, _ := io.ReadAll(resp.Body)
 		fmt.Println("BODY => ", string(b))
-		require.Empty(t, b)
+		s.Require().Empty(b)
 
-		require.Equal(t, http.StatusOK, resp.StatusCode)
-		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-		require.NoError(t, finder.Wait(time.Second))
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+		s.Require().Equal("application/json", resp.Header.Get("Content-Type"))
+		s.Require().NoError(finder.Wait(time.Second))
 	})
 
-	s.T().Run("user can list withdraw operations", func(t *testing.T) {
+	s.Run("user can list withdraw operations", func() {
 		finder := writer.NewFinder("/api/user/withdrawals")
 		server.proxy.SetWriter(finder)
 
@@ -178,11 +176,11 @@ func (s *ServerTestsuite) Test_CanRegister() {
 
 		b, _ := io.ReadAll(resp.Body)
 		fmt.Println("BODY => ", string(b))
-		require.NotEmpty(t, b)
+		s.Require().NotEmpty(b)
 
-		require.Equal(t, http.StatusOK, resp.StatusCode)
-		require.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-		require.NoError(t, finder.Wait(time.Second))
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+		s.Require().Equal("application/json", resp.Header.Get("Content-Type"))
+		s.Require().NoError(finder.Wait(time.Second))
 	})
 }
 
