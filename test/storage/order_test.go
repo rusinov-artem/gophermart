@@ -20,7 +20,7 @@ type OrderStorageTestSuite struct {
 	storage *storage.Storage
 }
 
-func Test_OrderStorate(t *testing.T) {
+func Test_OrderStorage(t *testing.T) {
 	suite.Run(t, &OrderStorageTestSuite{})
 }
 
@@ -149,7 +149,7 @@ func (s *OrderStorageTestSuite) Test_CanUpdateMultipleOrders() {
 	s.SetOrderUploadAt("OrderNR012", "2024-04-01 00:00:00")
 
 	s.Require().NoError(s.storage.AddOrder("login10", "OrderNR013"))
-	s.SetOrderUploadAt("OrderNR012", "2024-04-02 00:00:00")
+	s.SetOrderUploadAt("OrderNR013", "2024-04-02 00:00:00")
 
 	err := s.storage.UpdateOrdersState([]dto.OrderListItem{
 		{
