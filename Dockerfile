@@ -7,7 +7,7 @@ RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/i
 RUN go install github.com/go-delve/delve/cmd/dlv@latest &&\
     go install github.com/amobe/gocov-merger@latest &&\
     go install github.com/nikolaydubina/go-cover-treemap@v1.4.2 &&\
-    go install github.com/pressly/goose/v3/cmd/goose@latest
+    go install github.com/pressly/goose/v3/cmd/goose@v3.24.1
 
 WORKDIR /app
 
