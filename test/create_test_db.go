@@ -17,6 +17,7 @@ func CreateTestDB(dbName string) string {
 
 	ctx := context.Background()
 	conn, err := pgx.Connect(ctx, defaultConnectionString)
+	defer func() { _ = conn.Close(ctx) }()
 	if err != nil {
 		panic(err)
 	}
