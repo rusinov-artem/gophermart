@@ -2,6 +2,7 @@ package converter
 
 import (
 	"encoding/json"
+	"net/http"
 
 	appError "github.com/rusinov-artem/gophermart/app/error"
 )
@@ -32,4 +33,9 @@ func (t *ValidationErrorConverter) Byte() []byte {
 	b, _ := json.Marshal(e)
 
 	return b
+}
+
+func (t *ValidationErrorConverter) Flush(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusBadRequest)
+	_, _ = w.Write(t.Byte())
 }
