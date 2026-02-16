@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # needed to run tests with -race flag
-export CGO_ENABLED=1
+# export CGO_ENABLED=1
 export GOCOVERDIR=/app/test/bintest/coverdir
 rm ${GOCOVERDIR:?}/* -r
 
@@ -10,7 +10,7 @@ if [ -f ${APP_BIN} ]; then
   rm ${APP_BIN:?}
 fi
 
-echo "Compaling ..."
+echo "Compiling ..."
 go build -cover -o ./test/bintest/app ./cmd/gophermart
 R_VAL=$?
 
