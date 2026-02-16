@@ -9,6 +9,8 @@ services:
     working_dir: /app
     volumes:
       - "./:/app"
+    ports:
+      - "7777:7777"
     env_file:
       - .env
     build:
@@ -16,7 +18,8 @@ services:
 
   gophermart-db:
     container_name: gophermart-db
-    image: postgres:16
+    image: postgres:17
+    command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off", "-c", "max_connections=1000"]
     volumes:
       - data:/var/lib/postgresql/data
     healthcheck:
