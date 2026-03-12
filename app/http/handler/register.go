@@ -13,8 +13,8 @@ import (
 const CookiesLifeTime = 3600
 
 type RegisterAction interface {
-	Validate(params dto.RegisterParams) *appError.ValidationError
-	Register(params dto.RegisterParams) (string, *appError.InternalError)
+	Validate(params dto.RegisterParams) *appError.Error
+	Register(params dto.RegisterParams) (string, *appError.Error)
 }
 
 type registerEnvelop struct {
@@ -47,13 +47,13 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	action := h.RegisterAction(ctx)
 	validationErr := action.Validate(envelop.Params())
 	if validationErr != nil {
-		converter.ConvertError(w, validationErr)
+		converter.ConvertError2(w, validationErr)
 		return
 	}
 
 	token, registrationErr := action.Register(envelop.Params())
 	if registrationErr != nil {
-		converter.ConvertError(w, registrationErr)
+		converter.ConvertError2(w, registrationErr)
 		return
 	}
 

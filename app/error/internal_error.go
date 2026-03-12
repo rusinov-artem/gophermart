@@ -6,6 +6,8 @@ type InternalError struct {
 	Code       Code
 }
 
+func (t *InternalError) appError() {}
+
 func (t *InternalError) Error() string {
 	return t.Msg
 }

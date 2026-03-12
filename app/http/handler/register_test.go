@@ -47,9 +47,11 @@ func (s *RegisterTestSuite) Test_InvalidParams() {
 		"password": "password"
 	}`))
 
-	s.action.validationError = &appError.ValidationError{Fields: map[string][]string{
-		"login": {"invalid login"},
-	}}
+	s.action.validationError = &appError.Error{
+		Error: &appError.ValidationError{Fields: map[string][]string{
+			"login": {"invalid login"},
+		}},
+	}
 
 	resp := s.handle(req)
 
@@ -70,9 +72,11 @@ func (s *RegisterTestSuite) Test_RegistrationInternalError() {
 		"password": "password"
 	}`))
 
-	s.action.registrationError = &appError.InternalError{
-		InnerError: fmt.Errorf("database error"),
-		Msg:        "temporary unable to register user",
+	s.action.registrationError = &appError.Error{
+		Error: &appError.InternalError{
+			InnerError: fmt.Errorf("database error"),
+			Msg:        "temporary unable to register user",
+		},
 	}
 
 	resp := s.handle(req)
@@ -93,9 +97,11 @@ func (s *RegisterTestSuite) Test_LoginAlreadyInUse() {
 		"password": "password"
 	}`))
 
-	s.action.registrationError = &appError.InternalError{
-		Msg:  "login already in use",
-		Code: appError.LoginAlreadyInUse,
+	s.action.registrationError = &appError.Error{
+		Error: &appError.InternalError{
+			Msg:  "login already in use",
+			Code: appError.LoginAlreadyInUse,
+		},
 	}
 
 	resp := s.handle(req)
@@ -133,21 +139,21 @@ func (s *RegisterTestSuite) req(body io.Reader) *http.Request {
 }
 
 type MockRegisterAction struct {
-	validationError  *appError.ValidationError
+	validationError  *appError.Error
 	validationParams *dto.RegisterParams
 
-	registrationError  *appError.InternalError
+	registrationError  *appError.Error
 	registrationParams *dto.RegisterParams
 
 	token string
 }
 
-func (m *MockRegisterAction) Validate(params dto.RegisterParams) *appError.ValidationError {
+func (m *MockRegisterAction) Validate(params dto.RegisterParams) *appError.Error {
 	m.validationParams = &params
 	return m.validationError
 }
 
-func (m *MockRegisterAction) Register(params dto.RegisterParams) (string, *appError.InternalError) {
+func (m *MockRegisterAction) Register(params dto.RegisterParams) (string, *appError.Error) {
 	m.registrationParams = &params
 	return m.token, m.registrationError
 }
