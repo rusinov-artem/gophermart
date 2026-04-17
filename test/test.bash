@@ -28,16 +28,14 @@ mkdir ${GOCOVERDIR}
 echo "Runing tests..."
 
 TEST_CMD="go test -v -count=1 -json -coverpkg=./... -covermode=set -coverprofile=coverage.out ./..."
-
-TEST_OUT=$(${TEST_CMD})
-
-R_VAL=$?
+${TEST_CMD} > test.log 
+R_VAL=${PIPESTATUS[0]}
 if [[ R_VAL -ne "0" ]] ; then
   FAIL="TRUE"
 fi
 
 # Filter failed tests
- FAILED_TESTS=$( echo "${TEST_OUT}" | jq -c 'select(.Action=="fail")')
+ FAILED_TESTS=$( cat test.log | jq -c 'select(.Action=="fail")')
  R_VAL=$?
  if [[ R_VAL -ne "0" ]] ; then
    echo "!!! TESTS FAILED !!!"
@@ -45,8 +43,9 @@ fi
  fi
 
 if [[ ${FAIL} ]]; then
-    echo "${FAILED_TESTS}"
     echo "!!! TESTS FAILED !!!"
+    echo "List of FAILED TESTS here:"
+    echo "${FAILED_TESTS}"
     exit 3 # needed to make build red
 else
    echo "!!! TESTS PASSED !!!"
