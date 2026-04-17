@@ -34,18 +34,10 @@ if [[ R_VAL -ne "0" ]] ; then
   FAIL="TRUE"
 fi
 
-# Filter failed tests
- FAILED_TESTS=$( cat test.log | jq -c 'select(.Action=="fail")')
- R_VAL=$?
- if [[ R_VAL -ne "0" ]] ; then
-   echo "!!! TESTS FAILED !!!"
-   exit 2
- fi
-
 if [[ ${FAIL} ]]; then
     echo "!!! TESTS FAILED !!!"
     echo "List of FAILED TESTS here:"
-    echo "${FAILED_TESTS}"
+    jq -c 'select(.Action=="fail" and .Test)'   test.log | jq 'del(.Time, .Action, .Elapsed)'
     exit 3 # needed to make build red
 else
    echo "!!! TESTS PASSED !!!"
